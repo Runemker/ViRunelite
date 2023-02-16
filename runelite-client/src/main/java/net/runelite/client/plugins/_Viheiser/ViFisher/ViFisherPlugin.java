@@ -173,7 +173,7 @@ public class ViFisherPlugin extends Plugin
     private void interactWithFishingSpot() {
         sleep(sleepDelay());
         NPC fishSpot = npcUtils.findNearestNpc(fish.getNpcId());
-        npcUtils.invokeMenuOption(fishSpot, "Lure");
+        npcUtils.invokeMenuOption(fishSpot, fish.getNpcAction());
     }
 
     private boolean playerIsMoving() {
