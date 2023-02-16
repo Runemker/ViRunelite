@@ -6,10 +6,14 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.objects.DelayWrapper;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.ReflectionManager;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.MethodNameMapping;
 
 import javax.inject.Inject;
+
+import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.Sleeping.sleep;
 
 @Slf4j
 public class MenuEntryInteraction {
@@ -19,6 +23,21 @@ public class MenuEntryInteraction {
     private Client client;
     @Inject
     private ClientThread clientThread;
+    @Inject
+    private CalculatorUtils calculatorUtils;
+
+    public void invokeMenuAction(MenuEntry menuEntry, DelayWrapper delayWrapper){
+        sleep(
+                calculatorUtils.randomDelay(
+                        delayWrapper.isWeightedDistribution(),
+                        delayWrapper.getMinDelay(),
+                        delayWrapper.getMaxDelay(),
+                        delayWrapper.getDeviation(),
+                        delayWrapper.getTarget()
+                ));
+        insertMenuItem(menuEntry);
+        _invokeMenuAction(menuEntry);
+    }
 
     public void invokeMenuAction(MenuEntry menuEntry){
         insertMenuItem(menuEntry);

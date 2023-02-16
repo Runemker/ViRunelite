@@ -43,7 +43,6 @@ public class WidgetMenuEntries {
         return createMenuEntry(1, MenuAction.CC_OP, -1, makeId, false);
     }
 
-
     public MenuEntry createToggleRunEntry(){
         Widget runOrb = client.getWidget(WidgetInfo.MINIMAP_TOGGLE_RUN_ORB);
         return createMenuEntry(1, MenuAction.CC_OP, -1, runOrb.getId(), false);

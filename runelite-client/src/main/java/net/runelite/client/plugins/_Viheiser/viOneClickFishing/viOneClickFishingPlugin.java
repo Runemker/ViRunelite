@@ -13,6 +13,7 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.bank.BankBase;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.bank.ShiloVillage;
@@ -60,6 +61,8 @@ public class viOneClickFishingPlugin  extends Plugin
     private InventoryEntries inventoryEntries;
     @Inject
     private ChatMessageManager chatMessageManager;
+    @Inject
+    private NpcUtils npcUtils;
     Random random = new Random();
 
     private final String oneClickText = "1Click Fishing";
@@ -199,7 +202,8 @@ public class viOneClickFishingPlugin  extends Plugin
 
             if(method.equals(Method.BANK)) {
                 if (bankSpot.canSeeFish()) {
-                    menuEntryInteraction.invokeMenuAction(npcMenuEntries.createFishMenuEntry(fish.getNpcId()));
+                    NPC fishingSpot = npcUtils.findNearestNpc(fish.getNpcId().stream().mapToInt(Integer::intValue).toArray());
+                    menuEntryInteraction.invokeMenuAction(npcMenuEntries.createNpcOption(fishingSpot.getIndex(), MenuAction.NPC_FIRST_OPTION));
                 } else {
                     if (bankSpot.getAreaNearFish() != null) {
                         walkNearFish();
@@ -209,7 +213,8 @@ public class viOneClickFishingPlugin  extends Plugin
             }
 
             if(method.equals(Method.DROP)){
-                menuEntryInteraction.invokeMenuAction(npcMenuEntries.createFishMenuEntry(fish.getNpcId()));
+                NPC fishingSpot = npcUtils.findNearestNpc(fish.getNpcId().stream().mapToInt(Integer::intValue).toArray());
+                menuEntryInteraction.invokeMenuAction(npcMenuEntries.createNpcOption(fishingSpot.getIndex(), MenuAction.NPC_FIRST_OPTION));
                 return;
             }
 

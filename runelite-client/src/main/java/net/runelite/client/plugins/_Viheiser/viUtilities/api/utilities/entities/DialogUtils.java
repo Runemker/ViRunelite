@@ -5,7 +5,9 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class DialogUtils {
     @Inject
     private Client client;

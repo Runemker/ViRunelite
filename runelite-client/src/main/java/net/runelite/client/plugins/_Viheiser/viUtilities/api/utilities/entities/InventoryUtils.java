@@ -11,22 +11,21 @@ import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
+import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.Sleeping.sleep;
 
+@Singleton
 public class InventoryUtils {
     @Inject
     private Client client;
     @Inject
     private BankUtils bank;
-
-    @Inject
-    private ExecutorService executorService;
     @Inject
     private ClientThread clientThread;
     @Inject
@@ -38,7 +37,7 @@ public class InventoryUtils {
     @Inject
     private CalculatorUtils calculatorUtils;
     @Inject
-    private boolean iterating;
+    private viUtilitiesPlugin plugin;
     public List<Widget> getInventoryItems(Collection<Integer> ids) {
         rebuildInventoryWidget();
         Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
@@ -79,10 +78,10 @@ public class InventoryUtils {
             return;
         }
         Collection<Widget> inventoryItems = getAllInventoryItems();
-        executorService.submit(() ->
+        plugin.getExecutorService().submit(() ->
         {
             try {
-                iterating = true;
+                plugin.setIterating(true);
                 for (Widget item : inventoryItems) {
                     if (ids.contains(item.getId())) {
                         continue;
@@ -90,9 +89,9 @@ public class InventoryUtils {
                     menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(item));
                     sleep(calculatorUtils.randomDelay(weightedDistribution, minDelay, maxDelay, deviation, targetDelay));
                 }
-                iterating = false;
+                plugin.setIterating(false);
             } catch (Exception e) {
-                iterating = false;
+                plugin.setIterating(false);
                 e.printStackTrace();
             }
         });
@@ -116,11 +115,11 @@ public class InventoryUtils {
         if (bank.isOpen() || bank.isDepositBoxOpen()) {
             return;
         }
-        Collection<Widget> inventoryItems = getAllInventoryItems();
-        executorService.submit(() ->
+        Collection<Widget> inventoryItems = getInventoryItems(ids);
+        plugin.getExecutorService().submit(() ->
         {
             try {
-                iterating = true;
+                plugin.setIterating(true);
 
                 for (Widget item : inventoryItems) {
                     menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(item));
@@ -129,9 +128,9 @@ public class InventoryUtils {
                         break;
                     }
                 }
-                iterating = false;
+                plugin.setIterating(false);
             } catch (Exception e) {
-                iterating = false;
+                plugin.setIterating(false);
                 e.printStackTrace();
             }
         });

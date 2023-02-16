@@ -2,7 +2,7 @@ package net.runelite.client.plugins._Viheiser.viOneClickFishing.bank;
 
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldArea;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.retrievers.NPCRetriever;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
 
 import javax.inject.Inject;
@@ -11,7 +11,7 @@ public class ShiloVillage extends BankBase{
     @Inject
     private Client client;
     @Inject
-    private NPCRetriever npcLocator;
+    private NpcUtils npcUtils;
     @Inject
     private NpcMenuEntries npcMenuEntries;
     public ShiloVillage(Client client) {
@@ -25,7 +25,7 @@ public class ShiloVillage extends BankBase{
         if(player == null)
             return false;
 
-        NPC bankNpc = npcLocator.getNearestNpcWithIds(NpcID.ROD_FISHING_SPOT_1515);
+        NPC bankNpc = npcUtils.findNearestNpc(NpcID.ROD_FISHING_SPOT_1515);
         if(bankNpc == null)
             return false;
 
@@ -49,7 +49,7 @@ public class ShiloVillage extends BankBase{
 
     @Override
     public MenuEntry openBank() {
-        return npcMenuEntries.createOpenBank(NpcID.BANKER_3093);
+        return npcMenuEntries.createNpcOption(npcUtils.findNearestNpc(NpcID.BANKER_3093).getIndex(), MenuAction.NPC_THIRD_OPTION);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ShiloVillage extends BankBase{
         if(player == null)
             return false;
 
-        NPC bankNpc = npcLocator.getNearestNpcWithIds(NpcID.BANKER_3093);
+        NPC bankNpc = npcUtils.findNearestNpc(NpcID.BANKER_3093);
         if(bankNpc == null)
             return false;
 

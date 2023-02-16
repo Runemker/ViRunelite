@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class viPlayer implements PlayerExtensions {
+public class viPlayer implements PlayerExtensions, Player {
     @Inject
     private Client client;
     @Inject

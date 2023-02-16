@@ -1,6 +1,7 @@
 package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import net.runelite.api.*;
 import net.runelite.api.widgets.Widget;
@@ -12,23 +13,22 @@ import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interacti
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.BankMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.objectlists.Banks;
+import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import static java.awt.event.KeyEvent.VK_ENTER;
 import static net.runelite.api.widgets.WidgetID.BANK_PIN_GROUP_ID;
 import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.Sleeping.sleep;
 
+@Singleton
 public class BankUtils {
     @Inject
     private Client client;
     @Inject
     private ItemManager itemManager;
-    @Inject
-    private ExecutorService executorService;
     @Inject
     private ClientThread clientThread;
     @Inject
@@ -41,6 +41,8 @@ public class BankUtils {
     private InventoryUtils inventoryUtils;
     @Inject
     private KeyboardInteractions keyboardInteractions;
+    @Inject
+    private viUtilitiesPlugin plugin;
     private boolean iterating;
     public boolean isDepositBoxOpen() {
         return client.getWidget(WidgetInfo.DEPOSIT_BOX_INVENTORY_ITEMS_CONTAINER) != null;
@@ -166,7 +168,7 @@ public class BankUtils {
         if (!isOpen() && !isDepositBoxOpen()) {
             return;
         }
-        executorService.submit(() ->
+        plugin.getExecutorService().submit(() ->
         {
             Widget depositInventoryWidget = client.getWidget(WidgetInfo.BANK_DEPOSIT_INVENTORY);
             if ((depositInventoryWidget != null)) {
@@ -187,7 +189,7 @@ public class BankUtils {
 
         Collection<Widget> inventoryItems = inventoryUtils.getAllInventoryItems();
         List<Integer> depositedItems = new ArrayList<>();
-        executorService.submit(() ->
+        plugin.getExecutorService().submit(() ->
         {
             try {
                 iterating = true;
@@ -228,7 +230,7 @@ public class BankUtils {
         }
         Collection<Widget> inventoryItems = inventoryUtils.getAllInventoryItems();
         List<Integer> depositedItems = new ArrayList<>();
-        executorService.submit(() ->
+        plugin.getExecutorService().submit(() ->
         {
             try {
                 iterating = true;
@@ -307,7 +309,7 @@ public class BankUtils {
                 }
                 menuEntryInteraction.invokeMenuAction(bankMenuEntries.createWithdrawItemAmount(item, amount, identifier));
                 if (identifier == 6) {
-                    executorService.submit(() -> {
+                    plugin.getExecutorService().submit(() -> {
                         sleep(calculatorUtils.getRandomIntBetweenRange(1000, 1500));
                         keyboardInteractions.typeString(String.valueOf(amount));
                         sleep(calculatorUtils.getRandomIntBetweenRange(80, 250));

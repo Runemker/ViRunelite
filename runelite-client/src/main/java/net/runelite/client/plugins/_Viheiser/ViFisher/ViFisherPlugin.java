@@ -5,30 +5,36 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
 import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.ViFisher.enums.Fish;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.extensions.objects.viPlayer;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.objects.DelayWrapper;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.DialogUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.InventoryUtils;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.WalkInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
+import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 import net.runelite.client.util.HotkeyListener;
 
 import javax.inject.Inject;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+@PluginDependency(viUtilitiesPlugin.class)
 @PluginDescriptor(
         name = "ViFisher",
         description = "power fishes",
@@ -65,9 +71,14 @@ public class ViFisherPlugin extends Plugin
     private ChatMessageManager chatMessageManager;
     @Inject
     private KeyManager keyManager;
-
     @Inject
-    private CalculatorUtils calc;
+    private CalculatorUtils calculatorUtils;
+    @Inject
+    private NpcUtils npcUtils;
+    @Inject
+    private DialogUtils dialogUtils;
+    @Inject
+    private viUtilitiesPlugin viUtilities;
 
     @Provides
     private ViFisherConfig provideConfig(ConfigManager configManager)
@@ -82,22 +93,33 @@ public class ViFisherPlugin extends Plugin
     ListIterator<Widget> dropListIterator;
 
     HashMap<Integer, Integer> dropOrder;
-    private ExecutorService executorService;
     private boolean run;
-
+    private DelayWrapper delayWrapper;
     @Override
     protected void startUp() throws Exception
     {
         fish = config.fishType();
         keyManager.registerKeyListener(hotkeyListener);
-        executorService = Executors.newSingleThreadExecutor();
+        delayWrapper = new DelayWrapper(config.weightedDistribution(), config.minDelay(), config.maxDelay(), config.deviation(), config.target());
     }
 
     @Override
     protected void shutDown() throws Exception
     {
         keyManager.unregisterKeyListener(hotkeyListener);
-        executorService.shutdown();
+    }
+
+    @Subscribe
+    private void onConfigChanged(ConfigChanged event){
+        updateDelayWrapper();
+    }
+
+    private void updateDelayWrapper(){
+        if(delayWrapper == null){
+            delayWrapper = new DelayWrapper(config.weightedDistribution(), config.minDelay(), config.maxDelay(), config.deviation(), config.target());
+        } else {
+            delayWrapper.update(config.weightedDistribution(), config.minDelay(), config.maxDelay(), config.deviation(), config.target());
+        }
     }
 
     private final HotkeyListener hotkeyListener = new HotkeyListener(() -> config.toggle())
@@ -105,19 +127,29 @@ public class ViFisherPlugin extends Plugin
         @Override
         public void hotkeyPressed()
         {
-            run = !run;
+            //hasclicked
         }
     };
+
+    boolean clicked = false;
 
     @Subscribe
     private void onGameTick(GameTick event)
     {
-        if (!run) return;
+        if (!config.run() || isInvalidGameState() || viUtilities.isIterating() || clicked) return;
 
-        if(!dropping){
-
+        if(inventoryUtils.isFull()){
+            handleDrop();
         }
-        startLoop();
+
+        if(playerIsFishing() && !dialogUtils.levelUpMessageIsVisible() || playerIsMoving()) {
+            clicked = false;
+            return;
+        }
+
+        NPC fishSpot = npcUtils.findNearestNpc(fish.getNpcId());
+        npcUtils.invokeMenuOption(fishSpot, MenuAction.NPC_FIRST_OPTION);
+        clicked = true;
     }
 
     private boolean playerIsMoving() {
@@ -140,25 +172,15 @@ public class ViFisherPlugin extends Plugin
         return false;
     }
 
-
-    private boolean levelUpMessageIsVisible() {
-        Widget levelUpMessage = client.getWidget(WidgetInfo.LEVEL_UP);
-        Widget dialogSprite = client.getWidget(WidgetInfo.DIALOG_SPRITE);
-        return widgetIsVisible(levelUpMessage) || widgetIsVisible(dialogSprite);
-    }
-
-    private boolean widgetIsVisible(Widget widget) {
-        return widget != null && !widget.isHidden();
-    }
-
     private void handleDrop() {
-        if (dropListIterator.hasNext()) {
-            menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(dropListIterator.next()));
-            return;
-        }
-        if (!dropListIterator.hasNext()) {
-            dropping = false;
-        }
+        inventoryUtils.dropItems(fish.getItemId(), true, config.weightedDistribution(), config.minDelay(), config.maxDelay(), config.deviation(), config.target());
+//        if (dropListIterator.hasNext()) {
+//            menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(dropListIterator.next()));
+//            return;
+//        }
+//        if (!dropListIterator.hasNext()) {
+//            dropping = false;
+//        }
     }
 
     @Subscribe
@@ -203,37 +225,16 @@ public class ViFisherPlugin extends Plugin
         dropping = true;
     }
 
-    private void startLoop(){
-        executorService.submit(() ->
-        {
-            while (run)
-            {
-                if (validState())
-                {
-                    run = false;
-                    break;
-                }
-
-                if (dropping) {
-                    handleDrop();
-                } else {
-                    run = false;
-                }
-
-                try
-                {
-                    Thread.sleep(calc.randomDelay(config.weightedDistribution(), config.min(), config.max(), config.deviation(), config.target()));
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        });
+    private boolean isInvalidGameState() {
+        return client.getLocalPlayer() == null
+                || client.getGameState() != GameState.LOGGED_IN
+                || client.isMenuOpen()
+                || isLoginButtonPresent();
     }
 
-    private boolean validState() {
-        return client.getLocalPlayer() == null || client.getGameState() != GameState.LOGGED_IN;
+    private boolean isLoginButtonPresent() {
+        int LOGIN_BUTTON_ID = 78;
+        return client.getWidget(WidgetID.LOGIN_CLICK_TO_PLAY_GROUP_ID, LOGIN_BUTTON_ID) != null;
     }
 
 }

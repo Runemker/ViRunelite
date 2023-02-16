@@ -45,15 +45,25 @@ public interface ViFisherConfig extends Config {
     @ConfigItem(
             keyName = "toggle",
             name = "Toggle",
-            description = "Toggles the clicker.",
-            position = 0,
+            description = "Key to toggle",
+            position = 4,
             section = generalSection
     )
     default Keybind toggle()
     {
         return Keybind.NOT_SET;
     }
-
+    @ConfigItem(
+            keyName = "run",
+            name = "run",
+            description = "Key to toggle",
+            position = 5,
+            section = generalSection
+    )
+    default boolean run()
+    {
+        return false;
+    }
     @ConfigItem(
             keyName = "fishType",
             name = "Fish Method",
@@ -98,7 +108,7 @@ public interface ViFisherConfig extends Config {
             position = 3,
             section = sleepDelaySection
     )
-    default int min()
+    default int minDelay()
     {
         return 120;
     }
@@ -110,7 +120,7 @@ public interface ViFisherConfig extends Config {
             position = 4,
             section = sleepDelaySection
     )
-    default int max()
+    default int maxDelay()
     {
         return 240;
     }

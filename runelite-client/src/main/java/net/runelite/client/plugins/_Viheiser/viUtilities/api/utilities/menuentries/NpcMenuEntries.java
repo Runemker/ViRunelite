@@ -3,38 +3,24 @@ package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentr
 import net.runelite.api.Client;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
-import net.runelite.api.NPC;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.retrievers.NPCRetriever;
 
 import javax.inject.Inject;
-import java.util.Set;
 
 public class NpcMenuEntries {
     @Inject
     private Client client;
-    @Inject
-    private NPCRetriever npcRetriever;
-    public MenuEntry createOpenBank(int npcId){
-        NPC bankNpc = npcRetriever.getNearestNpcWithIds(npcId);
-
-        if (bankNpc != null) {
-            return createMenuEntry(
-                    bankNpc.getIndex(),
-                    MenuAction.NPC_THIRD_OPTION,
-                    0,
-                    0,
-                    false);
-        }
-
-        return null;
-    }
-
-    public MenuEntry createFishMenuEntry(Set<Integer> npcIds) {
-        NPC bankNpc = npcRetriever.getNearestNpcWithIds(npcIds.stream().mapToInt(Integer::intValue).toArray());
-
+    public MenuEntry createThirdNPCOption(int npcIndex){
         return createMenuEntry(
-                bankNpc.getIndex(),
-                MenuAction.NPC_FIRST_OPTION,
+                npcIndex,
+                MenuAction.NPC_THIRD_OPTION,
+                0,
+                0,
+                false);
+    }
+    public MenuEntry createNpcOption(int npcIndex, MenuAction npcOption){
+        return createMenuEntry(
+                npcIndex,
+                npcOption,
                 0,
                 0,
                 false);
