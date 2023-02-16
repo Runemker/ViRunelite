@@ -1,4 +1,4 @@
-package net.runelite.client.plugins._Viheiser.viUtilities.api.menuEntries;
+package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;

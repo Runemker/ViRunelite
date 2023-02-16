@@ -1,4 +1,4 @@
-package net.runelite.client.plugins._Viheiser.viUtilities.api.interactions;
+package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -32,6 +32,7 @@ public class MenuEntryInteraction {
                 menuEntry.getIdentifier(), itemId, menuEntry.getOption(),
                 menuEntry.getTarget(), -1, -1, (byte) 0
         };
+
 
         reflectionManager.invokeMenuAction(MethodNameMapping.INVOKE_MENU_ACTION, argList);
     }

@@ -15,11 +15,12 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.ViFisher.enums.Fish;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.extensions.objects.viPlayer;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.interactions.MenuEntryInteraction;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.interactions.WalkInteractions;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.menuEntries.InventoryEntries;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.menuEntries.NpcMenuEntries;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.menuEntries.WidgetMenuEntries;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.InventoryUtils;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.WalkInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
 import net.runelite.client.util.HotkeyListener;
 
@@ -58,6 +59,8 @@ public class ViFisherPlugin extends Plugin
     private WidgetMenuEntries widgetMenuEntries;
     @Inject
     private InventoryEntries inventoryEntries;
+    @Inject
+    private InventoryUtils inventoryUtils;
     @Inject
     private ChatMessageManager chatMessageManager;
     @Inject
@@ -148,18 +151,6 @@ public class ViFisherPlugin extends Plugin
         return widget != null && !widget.isHidden();
     }
 
-    private boolean inventoryIsFull() {
-        Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
-        if (inventoryWidget != null) {
-            int emptyWidgetId = 6512;
-            Widget[] items = inventoryWidget.getChildren();
-            if (Arrays.stream(items).filter(i -> i.getItemId() != emptyWidgetId).count() >= 28)
-                return true;
-        }
-
-        return false;
-    }
-
     private void handleDrop() {
         if (dropListIterator.hasNext()) {
             menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(dropListIterator.next()));
@@ -187,7 +178,7 @@ public class ViFisherPlugin extends Plugin
     //has to be called on client thread
     private void createDropList()
     {
-        int size = nonEmptyInventorySlots();
+        int size = inventoryUtils.getUsedItemSlots();
         if (size == 28)
         {
             updateDropList();
@@ -196,14 +187,12 @@ public class ViFisherPlugin extends Plugin
         previousSize = size;
     }
 
-    private int nonEmptyInventorySlots() {
-        Widget inventory = client.getWidget(WidgetInfo.INVENTORY.getId());
-        return inventory == null ? 28 : (int) Arrays.stream(inventory.getDynamicChildren()).filter(w -> w.getItemId() != 6512).count();
+    private int getItemIndex(int i) {
+        return config.customDrop() ? dropOrder.get(i) : i;
     }
 
-
     private void updateDropList() {
-        dropList = getItems(fish.getItemId());
+        dropList = inventoryUtils.getInventoryItems(fish.getItemId());
 
         if (dropList == null || dropList.isEmpty()) {
             dropping = false;
@@ -241,66 +230,6 @@ public class ViFisherPlugin extends Plugin
                 }
             }
         });
-    }
-
-
-    public List<Widget> getItems(Collection<Integer> ids) {
-        rebuildInventoryWidget();
-        Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
-
-        if (inventoryWidget != null && inventoryWidget.getChildren() != null) {
-            return getMatchingItems(inventoryWidget, ids);
-        }
-
-        return null;
-    }
-
-    private List<Widget> getMatchingItems(Widget inventoryWidget, Collection<Integer> ids) {
-        List<Widget> matchedItems = new ArrayList<>();
-        for (int i = 0; i < getInventorySize(inventoryWidget); i++) {
-            Widget item = inventoryWidget.getChild(getItemIndex(i));
-            if (item != null && ids.contains(item.getItemId())) {
-                matchedItems.add(item);
-            }
-        }
-        return matchedItems;
-    }
-
-
-    private int getInventorySize(Widget inventoryWidget) {
-        return Math.min(inventoryWidget.getChildren().length, 28);
-    }
-
-    private int getItemIndex(int i) {
-        return config.customDrop() ? dropOrder.get(i) : i;
-    }
-
-    private void rebuildInventoryWidget() {
-        clientThread.invoke(() -> client.runScript(6009, 9764864, 28, 1, -1));
-    }
-
-
-    private boolean bankIsOpen() {
-        Widget bankWidget = client.getWidget(WidgetInfo.BANK_ITEM_CONTAINER);
-        return widgetIsVisible(bankWidget);
-    }
-
-    private Widget getWidgetItem(Widget widget, Set<Integer> ids) {
-        for (Widget item : widget.getDynamicChildren()) {
-            if (ids.contains(item.getItemId())) {
-                return item;
-            }
-        }
-        return null;
-    }
-
-    private boolean shouldOpenInventory() {
-        return inventoryIsHidden() && !bankIsOpen();
-    }
-
-    private boolean inventoryIsHidden() {
-        Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
-        return !widgetIsVisible(inventoryWidget);
     }
 
     private boolean validState() {

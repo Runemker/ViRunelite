@@ -1,4 +1,4 @@
-package net.runelite.client.plugins._Viheiser.viUtilities.api.menuEntries.enums;
+package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.enums;
 
 public enum BankOptions {
     WITHDRAW_1("Withdraw-1"),

@@ -10,7 +10,7 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.ChatMessageHandler;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.interactions.WalkInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.WalkInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.extensions.objects.viPlayer;
 
 import javax.inject.Inject;

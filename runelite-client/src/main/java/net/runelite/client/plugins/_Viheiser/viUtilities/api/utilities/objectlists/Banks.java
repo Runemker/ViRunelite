@@ -1,4 +1,4 @@
-package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.objectLists;
+package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.objectlists;
 
 import com.google.common.collect.ImmutableSet;
 import net.runelite.api.ObjectID;

@@ -1,4 +1,4 @@
-package net.runelite.client.plugins._Viheiser.viUtilities.api.menuEntries;
+package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
@@ -6,7 +6,7 @@ import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.menuEntries.enums.BankOptions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.enums.BankOptions;
 
 import javax.inject.Inject;
 
@@ -14,10 +14,6 @@ import javax.inject.Inject;
 public class WidgetMenuEntries {
     @Inject
     private Client client;
-
-    public MenuEntry createCloseBank() {
-        return createMenuEntry(1, MenuAction.CC_OP, 11, 786434, false);
-    }
 
     public MenuEntry createWithdrawItemFromBank(Widget bankItem, BankOptions option) {
         int index = -1;

@@ -1,4 +1,4 @@
-package net.runelite.client.plugins._Viheiser.viUtilities.api.interactions;
+package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions;
 
 import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;

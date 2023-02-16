@@ -3,7 +3,7 @@ package net.runelite.client.plugins._Viheiser.viOneClickFishing.bank;
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.retrievers.NPCRetriever;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.menuEntries.NpcMenuEntries;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
 
 import javax.inject.Inject;
 

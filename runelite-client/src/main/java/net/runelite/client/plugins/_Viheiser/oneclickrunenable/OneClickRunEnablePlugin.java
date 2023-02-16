@@ -11,8 +11,8 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.interactions.MenuEntryInteraction;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.menuEntries.WidgetMenuEntries;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 
 import javax.inject.Inject;
 
