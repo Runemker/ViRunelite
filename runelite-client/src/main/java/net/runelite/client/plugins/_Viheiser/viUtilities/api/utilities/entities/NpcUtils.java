@@ -27,10 +27,46 @@ public class NpcUtils {
         return point1.distanceTo(point2);
     }
 
-
-    public void invokeMenuOption(NPC npc, MenuAction npcOption){
+    public void invokeMenuOption(NPC npc, String actionText) {
+        String[] npcActions = npc.getComposition().getActions();
+        int actionIndex = findActionIndex(npcActions, actionText);
+        if (actionIndex == -1) {
+            return;
+        }
+        MenuAction npcOption = getNpcOption(actionIndex);
+        if (npcOption == null) {
+            return;
+        }
         menuEntryInteraction.invokeMenuAction(npcMenuEntries.createNpcOption(npc.getIndex(), npcOption));
     }
+
+    public void invokeMenuOption(NPC npc, MenuAction npcOption) {
+        menuEntryInteraction.invokeMenuAction(npcMenuEntries.createNpcOption(npc.getIndex(), npcOption));
+    }
+
+    private int findActionIndex(String[] npcActions, String actionText) {
+        for (int i = 0; i < npcActions.length; i++) {
+            if (npcActions[i].equalsIgnoreCase(actionText)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private MenuAction getNpcOption(int actionIndex) {
+        MenuAction[] options = {
+                MenuAction.NPC_FIRST_OPTION,
+                MenuAction.NPC_SECOND_OPTION,
+                MenuAction.NPC_THIRD_OPTION,
+                MenuAction.NPC_FOURTH_OPTION,
+                MenuAction.NPC_FIFTH_OPTION
+        };
+        if (actionIndex >= 0 && actionIndex < options.length) {
+            return options[actionIndex];
+        }
+        return null;
+    }
+
 
     public NPC findNearestNpc(String... npcNames) {
         if(!validChecks()) return null;

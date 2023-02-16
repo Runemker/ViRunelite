@@ -49,11 +49,22 @@ public class MenuEntryInteraction {
         Object[] argList = {
                 menuEntry.getParam0(), menuEntry.getParam1(), menuEntry.getType().getId(),
                 menuEntry.getIdentifier(), itemId, menuEntry.getOption(),
-                menuEntry.getTarget(), -1, -1, (byte) 0
+                menuEntry.getTarget(), getRandomY(), getRandomX(), (byte) 0
         };
-
+        client.getViewportHeight();
+        client.getViewportWidth();
 
         reflectionManager.invokeMenuAction(MethodNameMapping.INVOKE_MENU_ACTION, argList);
+    }
+
+    private int getRandomY(){
+        int clientHeight = client.getViewportHeight();
+        return calculatorUtils.getRandomIntBetweenRange(15, clientHeight / 2);
+    }
+
+    private int getRandomX(){
+        int clientWidth = client.getViewportWidth();
+        return calculatorUtils.getRandomIntBetweenRange(15, clientWidth / 2);
     }
 
     public void insertMenuItem(MenuEntry menuEntry){

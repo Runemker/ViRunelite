@@ -8,6 +8,7 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.objects.DelayWrapper;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
@@ -103,15 +104,15 @@ public class InventoryUtils {
         menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(item));
     }
 
-    public void dropInventory(boolean weightedDistribution, int minDelay, int maxDelay, int deviation, int targetDelay) {
+    public void dropInventory(DelayWrapper delayWrapper) {
         if (bank.isOpen() || bank.isDepositBoxOpen()) {
             return;
         }
         Collection<Integer> inventoryItems = getAllInventoryItems().stream().map(item -> item.getItemId()).collect(Collectors.toList());
-        dropItems(inventoryItems, true, weightedDistribution, minDelay, maxDelay, deviation, targetDelay);
+        dropItems(inventoryItems, true, delayWrapper);
     }
 
-    public void dropItems(Collection<Integer> ids, boolean dropAll, boolean weightedDistribution, int minDelay, int maxDelay, int deviation, int targetDelay) {
+    public void dropItems(Collection<Integer> ids, boolean dropAll, DelayWrapper delayWrapper) {
         if (bank.isOpen() || bank.isDepositBoxOpen()) {
             return;
         }
@@ -123,7 +124,7 @@ public class InventoryUtils {
 
                 for (Widget item : inventoryItems) {
                     menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(item));
-                    sleep(calculatorUtils.randomDelay(weightedDistribution, minDelay, maxDelay, deviation, targetDelay));
+                    sleep(calculatorUtils.randomDelay(delayWrapper.isWeightedDistribution(), delayWrapper.getMinDelay(), delayWrapper.getMaxDelay(), delayWrapper.getDeviation(), delayWrapper.getTarget()));
                     if (!dropAll) {
                         break;
                     }

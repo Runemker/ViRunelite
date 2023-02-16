@@ -19,6 +19,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.ViFisher.enums.Fish;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.extensions.objects.viPlayer;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.objects.DelayWrapper;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.ChatMessageHandler;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.DialogUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.InventoryUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
@@ -33,6 +34,8 @@ import net.runelite.client.util.HotkeyListener;
 
 import javax.inject.Inject;
 import java.util.*;
+
+import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.Sleeping.sleep;
 
 @PluginDependency(viUtilitiesPlugin.class)
 @PluginDescriptor(
@@ -79,6 +82,8 @@ public class ViFisherPlugin extends Plugin
     private DialogUtils dialogUtils;
     @Inject
     private viUtilitiesPlugin viUtilities;
+    @Inject
+    private ChatMessageHandler chatMessageHandler;
 
     @Provides
     private ViFisherConfig provideConfig(ConfigManager configManager)
@@ -89,6 +94,7 @@ public class ViFisherPlugin extends Plugin
     private Fish fish;
     boolean dropping = false;
     int previousSize = 0;
+    int timeOut = 0;
     List<Widget> dropList;
     ListIterator<Widget> dropListIterator;
 
@@ -127,29 +133,47 @@ public class ViFisherPlugin extends Plugin
         @Override
         public void hotkeyPressed()
         {
-            //hasclicked
+            run = !run;
+            if(run)
+                initEverything();
+            else
+                chatMessageHandler.sendGameMessage("Stopping ViFisher");
         }
     };
 
-    boolean clicked = false;
+    private void initEverything(){
+        timeOut = 0;
+        chatMessageHandler.sendGameMessage("Starting ViFisher");
+    }
 
     @Subscribe
     private void onGameTick(GameTick event)
     {
-        if (!config.run() || isInvalidGameState() || viUtilities.isIterating() || clicked) return;
+        if (!run || isInvalidGameState() || viUtilities.isIterating()) {
+            return;
+        }
+
+        if(timeOut > 0){
+            timeOut--;
+            return;
+        }
 
         if(inventoryUtils.isFull()){
             handleDrop();
         }
 
         if(playerIsFishing() && !dialogUtils.levelUpMessageIsVisible() || playerIsMoving()) {
-            clicked = false;
             return;
         }
 
+        interactWithFishingSpot();
+        timeOut = tickDelay();
+    }
+
+    private void interactWithFishingSpot() {
+        sleep(sleepDelay());
         NPC fishSpot = npcUtils.findNearestNpc(fish.getNpcId());
-        npcUtils.invokeMenuOption(fishSpot, MenuAction.NPC_FIRST_OPTION);
-        clicked = true;
+        npcUtils.invokeMenuOption(fishSpot, "Lure");
     }
 
     private boolean playerIsMoving() {
@@ -173,7 +197,7 @@ public class ViFisherPlugin extends Plugin
     }
 
     private void handleDrop() {
-        inventoryUtils.dropItems(fish.getItemId(), true, config.weightedDistribution(), config.minDelay(), config.maxDelay(), config.deviation(), config.target());
+        inventoryUtils.dropItems(fish.getItemId(), true, delayWrapper);
 //        if (dropListIterator.hasNext()) {
 //            menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(dropListIterator.next()));
 //            return;
@@ -237,4 +261,11 @@ public class ViFisherPlugin extends Plugin
         return client.getWidget(WidgetID.LOGIN_CLICK_TO_PLAY_GROUP_ID, LOGIN_BUTTON_ID) != null;
     }
 
+    private long sleepDelay(){
+        return calculatorUtils.randomDelay(config.weightedDistribution(), config.minDelay(),config.maxDelay(),config.deviation(),config.target());
+    }
+
+    private int tickDelay(){
+        return (int) calculatorUtils.randomDelay(config.tickDelaysWeightedDistribution(), config.tickDelaysMin(),config.tickDelaysMax(),config.tickDelaysDeviation(),config.tickDelaysTarget());
+    }
 }
