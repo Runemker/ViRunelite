@@ -1,4 +1,4 @@
-package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.enums;
+package net.runelite.client.plugins._Viheiser.viUtilities.api.enums;
 
 import net.runelite.api.Prayer;
 import net.runelite.api.widgets.WidgetInfo;

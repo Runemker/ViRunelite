@@ -3,7 +3,7 @@ package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities
 import net.runelite.api.*;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.enums.ExtendedPrayer;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.enums.ExtendedPrayer;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 
