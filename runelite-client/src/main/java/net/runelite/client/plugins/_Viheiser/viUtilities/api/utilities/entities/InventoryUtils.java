@@ -1,9 +1,6 @@
 package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities;
 
-import net.runelite.api.Client;
-import net.runelite.api.InventoryID;
-import net.runelite.api.Item;
-import net.runelite.api.ItemContainer;
+import net.runelite.api.*;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
@@ -39,6 +36,66 @@ public class InventoryUtils {
     private CalculatorUtils calculatorUtils;
     @Inject
     private viUtilitiesPlugin plugin;
+
+    public void interactWithItemInvoke(int itemID, String option) {
+        interactWithItemInvoke(new int[]{itemID}, option);
+    }
+
+    public void interactWithItemInvoke(int[] itemID, String option) {
+        Widget itemWidget = getWidget(itemID);
+        if (itemWidget != null) {
+            int id = itemOptionToId(itemWidget.getId(), option);
+            MenuEntry entry = inventoryEntries.createInteractWithItem(itemWidget, id, idToMenuAction(id));
+            if (entry != null) {
+                menuEntryInteraction.invokeMenuAction(entry);
+            }
+        }
+    }
+
+    private MenuAction idToMenuAction(int id)
+    {
+        if (id <= 5)
+            return MenuAction.CC_OP;
+        else
+            return MenuAction.CC_OP_LOW_PRIORITY;
+    }
+
+    private int itemOptionToId(int itemId, String match)
+    {
+        return itemOptionToId(itemId, List.of(match));
+    }
+
+    private int itemOptionToId(int itemId, List<String> match) {
+        ItemComposition itemDefinition = getItemDefinition(itemId);
+        String[] inventoryActions = itemDefinition.getInventoryActions();
+
+        for (int i = 0; i < inventoryActions.length; i++) {
+            String action = inventoryActions[i];
+            if (action != null && match.stream().anyMatch(action::equalsIgnoreCase)) {
+                return (i <= 2) ? i + 2 : i + 3;
+            }
+        }
+
+        return -1;
+    }
+
+
+    private final Map<Integer, ItemComposition> itemCompositionMap = new HashMap<>();
+    public ItemComposition getItemDefinition(int id)
+    {
+        if (itemCompositionMap.containsKey(id))
+        {
+            return itemCompositionMap.get(id);
+        }
+        else
+        {
+            ItemComposition def = client.getItemDefinition(id);
+            itemCompositionMap.put(id, def);
+
+            return def;
+        }
+    }
+
     public List<Widget> getInventoryItems(Collection<Integer> ids) {
         rebuildInventoryWidget();
         Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
@@ -60,12 +117,41 @@ public class InventoryUtils {
         return null;
     }
 
-    public Widget getWidgetItem(int id) {
+    public Widget getWidget(int id) {
         Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
         if (inventoryWidget != null) {
             Collection<Widget> items = getInventoryItems(List.of(id));
             for (Widget item : items) {
                 if (item.getId() == id) {
+                    return item;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public Widget getWidget(int[] ids) {
+        List<Integer> idList = Arrays.asList(Arrays.stream(ids).boxed().toArray(Integer[]::new));
+        Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
+        if (inventoryWidget != null) {
+            Collection<Widget> items = getInventoryItems(idList);
+            for (Widget item : items) {
+                if (idList.contains(item.getId())) {
+                    return item;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public Widget getWidget(Collection<Integer> ids) {
+        Widget inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
+        if (inventoryWidget != null) {
+            Collection<Widget> items = getInventoryItems(ids);
+            for (Widget item : items) {
+                if (ids.contains(item.getId())) {
                     return item;
                 }
             }

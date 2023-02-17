@@ -16,6 +16,9 @@ public class InventoryEntries {
     public MenuEntry createUseItem(Widget item) {
         return createMenuEntry(0, MenuAction.WIDGET_TARGET_ON_WIDGET, item.getIndex(), WidgetInfo.INVENTORY.getId(), false);
     }
+    public MenuEntry createInteractWithItem(Widget item, int identifier, MenuAction itemAction){
+        return createMenuEntry(identifier, itemAction, item.getIndex(), WidgetInfo.INVENTORY.getId(), false);
+    }
 
     public MenuEntry createDropItemEntry(Widget itemToDrop) {
         if (itemToDrop == null)

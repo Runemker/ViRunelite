@@ -221,7 +221,7 @@ public class BankUtils {
         if (!isOpen() && !isDepositBoxOpen()) {
             return;
         }
-        depositAllOfItem(inventoryUtils.getWidgetItem(itemID));
+        depositAllOfItem(inventoryUtils.getWidget(itemID));
     }
 
     public void depositAllOfItems(Collection<Integer> itemIDs) {
@@ -264,7 +264,7 @@ public class BankUtils {
             return;
         }
 
-        depositOneOfItem(inventoryUtils.getWidgetItem(itemID));
+        depositOneOfItem(inventoryUtils.getWidget(itemID));
     }
 
     private void withdrawAllItem(Widget bankItemToWithdraw) {

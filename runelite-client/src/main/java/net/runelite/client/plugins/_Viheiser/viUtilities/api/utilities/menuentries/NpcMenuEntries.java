@@ -9,14 +9,6 @@ import javax.inject.Inject;
 public class NpcMenuEntries {
     @Inject
     private Client client;
-    public MenuEntry createThirdNPCOption(int npcIndex){
-        return createMenuEntry(
-                npcIndex,
-                MenuAction.NPC_THIRD_OPTION,
-                0,
-                0,
-                false);
-    }
     public MenuEntry createNpcOption(int npcIndex, MenuAction npcOption){
         return createMenuEntry(
                 npcIndex,

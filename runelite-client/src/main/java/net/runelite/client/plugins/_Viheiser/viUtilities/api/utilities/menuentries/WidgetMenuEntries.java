@@ -25,6 +25,10 @@ public class WidgetMenuEntries {
         return createMenuEntry(index, MenuAction.CC_OP, bankItem.getIndex(), 786445, false);
     }
 
+    public MenuEntry createEnablePrayer(Widget prayerWidget) {
+        return createMenuEntry(1, MenuAction.CC_OP, -1, prayerWidget.getId(), false);
+    }
+
     public MenuEntry createDepositItemInBank(Widget item) {
         return createMenuEntry(
                 getIndexOfAction(item.getActions(), BankOptions.DEPOSIT_ALL),
