@@ -17,6 +17,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.ViFisher.enums.Fish;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.events.ProjectileSpawned;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.objects.DelayWrapper;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.ChatMessageHandler;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.DialogUtils;
@@ -201,6 +202,13 @@ public class ViFisherPlugin extends Plugin
         }
 
         return false;
+    }
+
+    @Subscribe
+    private void onProjectileSpawned(ProjectileSpawned event){
+        if(event.getProjectile() != null){
+            chatMessageHandler.sendGameMessage("Saw projectile!!!");
+        }
     }
 
     private boolean playerIsFishing() {

@@ -6,6 +6,7 @@ public enum ClassNameMapping {
     FILE_SYSTEM("FileSystem", "fw"),
     ACTOR("Actor", "cb"),
     CLASS9("Class9", "k"),
+    PROJECTILE("Projectile", "bp"),
     ;
 
     private final String obfuscatedName;
