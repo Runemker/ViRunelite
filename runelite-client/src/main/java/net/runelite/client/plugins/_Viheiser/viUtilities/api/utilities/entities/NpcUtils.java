@@ -6,7 +6,6 @@ import net.runelite.api.NPC;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;

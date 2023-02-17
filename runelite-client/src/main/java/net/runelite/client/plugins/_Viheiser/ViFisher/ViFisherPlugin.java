@@ -135,16 +135,18 @@ public class ViFisherPlugin extends Plugin
         {
             run = !run;
             if(run)
-                initEverything();
+                initEverything("Starting ViFisher");
             else
-                chatMessageHandler.sendGameMessage("Stopping ViFisher");
+                initEverything("Stopping ViFisher");
         }
     };
 
-    private void initEverything(){
+    private void initEverything(String message){
         timeOut = 0;
-        chatMessageHandler.sendGameMessage("Starting ViFisher");
+        chatMessageHandler.sendGameMessage(message);
     }
+
+    boolean hasTimedOut;
 
     @Subscribe
     private void onGameTick(GameTick event)
@@ -158,17 +160,33 @@ public class ViFisherPlugin extends Plugin
             return;
         }
 
-        if(inventoryUtils.isFull()){
-            handleDrop();
+        if(inventoryUtils.isFull() && !hasTimedOut){
             timeOut = 1 + tickDelay();
+            hasTimedOut = true;
+            return;
+        }
+
+        if(inventoryUtils.isFull() && hasTimedOut){
+            handleDrop();
+            hasTimedOut = false;
+            return;
         }
 
         if(playerIsFishing() && !dialogUtils.levelUpMessageIsVisible() || playerIsMoving()) {
             return;
         }
 
-        interactWithFishingSpot();
-        timeOut = tickDelay();
+        if(!hasTimedOut){
+            timeOut = 1 + tickDelay();
+            hasTimedOut = true;
+            return;
+        }
+
+        if(hasTimedOut){
+            interactWithFishingSpot();
+            hasTimedOut = false;
+        }
+
     }
 
     private void interactWithFishingSpot() {
@@ -198,6 +216,7 @@ public class ViFisherPlugin extends Plugin
     }
 
     private void handleDrop() {
+        sleep(sleepDelay());
         inventoryUtils.dropItems(fish.getItemId(), true, delayWrapper);
 //        if (dropListIterator.hasNext()) {
 //            menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(dropListIterator.next()));
@@ -267,6 +286,8 @@ public class ViFisherPlugin extends Plugin
     }
 
     private int tickDelay(){
-        return (int) calculatorUtils.randomDelay(config.tickDelaysWeightedDistribution(), config.tickDelaysMin(),config.tickDelaysMax(),config.tickDelaysDeviation(),config.tickDelaysTarget());
+        long ticks = calculatorUtils.randomDelay(config.tickDelaysWeightedDistribution(), config.tickDelaysMin(),config.tickDelaysMax(),config.tickDelaysDeviation(),config.tickDelaysTarget());
+        chatMessageHandler.sendGameMessage("Timing out for: " + (ticks + 1) + " ticks");
+        return (int) ticks;
     }
 }

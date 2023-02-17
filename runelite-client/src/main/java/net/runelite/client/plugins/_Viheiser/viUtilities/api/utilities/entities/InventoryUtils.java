@@ -198,6 +198,8 @@ public class InventoryUtils {
         dropItems(inventoryItems, true, delayWrapper);
     }
 
+    //TODO: lägga till drop item där man kan skicka med specifik index i inventoryt. den ska ligga på param0 i MenuEntry
+
     public void dropItems(Collection<Integer> ids, boolean dropAll, DelayWrapper delayWrapper) {
         if (bank.isOpen() || bank.isDepositBoxOpen()) {
             return;

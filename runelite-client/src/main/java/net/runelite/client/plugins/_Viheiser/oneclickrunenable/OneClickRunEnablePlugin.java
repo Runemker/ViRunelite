@@ -10,9 +10,11 @@ import net.runelite.api.widgets.WidgetID;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
+import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 
 import javax.inject.Inject;
 
@@ -23,6 +25,7 @@ import javax.inject.Inject;
 		tags = {"sundar", "pajeet", "viheiser"}
 )
 @Slf4j
+@PluginDependency(viUtilitiesPlugin.class)
 public class OneClickRunEnablePlugin extends Plugin
 {
 	@Inject

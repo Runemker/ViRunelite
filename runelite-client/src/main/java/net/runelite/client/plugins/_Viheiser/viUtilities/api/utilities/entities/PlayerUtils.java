@@ -11,11 +11,12 @@ import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.ReflectionManager;
 
 import javax.inject.Inject;
-import java.awt.*;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Singleton
 public class PlayerUtils {
     @Inject
     private InventoryUtils inventoryUtils;

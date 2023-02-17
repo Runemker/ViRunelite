@@ -7,9 +7,11 @@ import net.runelite.api.events.GameTick;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
+import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 
 import javax.inject.Inject;
 
@@ -20,6 +22,7 @@ import javax.inject.Inject;
 		tags = {"viheiser"}
 )
 @Slf4j
+@PluginDependency(viUtilitiesPlugin.class)
 public class viPrayerEnablerPlugin extends Plugin
 {
 	@Inject

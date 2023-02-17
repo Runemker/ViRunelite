@@ -10,8 +10,8 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.ChatMessageHandler;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.PlayerUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.WalkInteractions;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.extensions.objects.viPlayer;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class WalkInCirclesPlugin extends Plugin
 	public Client client;
 
 	@Inject
-	private viPlayer viPlayer;
+	private PlayerUtils playerUtils;
 	@Inject
 	public WalkInteractions walkInteractions;
 	@Inject
@@ -67,7 +67,7 @@ public class WalkInCirclesPlugin extends Plugin
 			return;
 
 		if(config.startWalking()){
-			if(viPlayer.isMoving())
+			if(playerUtils.isMoving())
 				return;
 
 			chatter.sendGameMessage("is start walking");

@@ -12,23 +12,26 @@ import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.PlayerUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.bank.BankBase;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.bank.ShiloVillage;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.enums.Actions;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.enums.Fish;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.enums.Method;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.extensions.objects.viPlayer;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.WalkInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
+import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 
 import javax.inject.Inject;
 import java.util.*;
 
+@PluginDependency(viUtilitiesPlugin.class)
 @PluginDescriptor(
         name = "viOneClickFishing",
         description = "viOneClickFishing",
@@ -48,7 +51,7 @@ public class viOneClickFishingPlugin  extends Plugin
     @Inject
     private ClientThread clientThread;
     @Inject
-    private viPlayer viPlayer;
+    private PlayerUtils playerUtils;
     @Inject
     private MenuEntryInteraction menuEntryInteraction;
     @Inject
@@ -130,7 +133,7 @@ public class viOneClickFishingPlugin  extends Plugin
     }
 
     private boolean playerIsMoving() {
-        if (viPlayer.isMoving()) {
+        if (playerUtils.isMoving()) {
             return true;
         }
 

@@ -8,7 +8,9 @@ import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interacti
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class PrayerUtils {
     @Inject
     private Client client;
