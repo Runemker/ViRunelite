@@ -17,12 +17,12 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.ViFisher.enums.Fish;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.extensions.objects.viPlayer;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.objects.DelayWrapper;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.ChatMessageHandler;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.DialogUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.InventoryUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.PlayerUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.WalkInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
@@ -57,7 +57,7 @@ public class ViFisherPlugin extends Plugin
     @Inject
     private ClientThread clientThread;
     @Inject
-    private viPlayer viPlayer;
+    private PlayerUtils playerUtils;
     @Inject
     private MenuEntryInteraction menuEntryInteraction;
     @Inject
@@ -160,6 +160,7 @@ public class ViFisherPlugin extends Plugin
 
         if(inventoryUtils.isFull()){
             handleDrop();
+            timeOut = 1 + tickDelay();
         }
 
         if(playerIsFishing() && !dialogUtils.levelUpMessageIsVisible() || playerIsMoving()) {
@@ -177,7 +178,7 @@ public class ViFisherPlugin extends Plugin
     }
 
     private boolean playerIsMoving() {
-        if (viPlayer.isMoving()) {
+        if (playerUtils.isMoving()) {
             return true;
         }
 
