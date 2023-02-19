@@ -5,7 +5,7 @@ import net.runelite.client.config.ConfigItem;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.enums.MouseType;
 
 @ConfigGroup("viUtilities")
-public interface viUtilitiesConfig extends Config
+public interface ViUtilitiesConfig extends Config
 {
     @ConfigItem(
             keyName = "getMouse",

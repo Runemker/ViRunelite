@@ -1,16 +1,14 @@
 package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions;
 
-import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Point;
 import net.runelite.api.*;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.enums.MouseType;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesConfig;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
+import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesConfig;
+import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesPlugin;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,11 +25,11 @@ public class MouseInteractions {
     @Inject
     private CalculatorUtils calc;
     @Inject
-    private viUtilitiesPlugin viUtilities;
+    private ViUtilitiesPlugin ViUtilities;
     @Inject
-    private viUtilitiesConfig config;
+    private ViUtilitiesConfig config;
     @Inject
-    private MenuEntryInteractions menuEntryInteractions;
+    private InvokeInteractions invokeInteractions;
     @Inject
     private ActionQueue actionQueue;
 
@@ -137,8 +135,8 @@ public class MouseInteractions {
         handleMouseClick(point);
     }
 
-    public void delayClickRandomPointCenter(int min, int max, long delay) {
-        viUtilities.getExecutorService().submit(() ->
+    public void delayClickRandomPointCenter(int min, int max, MenuEntry entry, long delay) {
+        ViUtilities.getExecutorService().submit(() ->
         {
             try {
                 sleep(delay);
@@ -195,11 +193,16 @@ public class MouseInteractions {
             Point finalClickPoint = point;
             log.debug("Clicking on new thread");
             if (config.getMouse().equals(MouseType.MOVE)) {
-                viUtilities.getExecutorService().submit(() -> moveClick(finalClickPoint));
+                ViUtilities.getExecutorService().submit(() -> moveClick(finalClickPoint));
             } else {
-                viUtilities.getExecutorService().submit(() -> click(finalClickPoint));
+                ViUtilities.getExecutorService().submit(() -> click(finalClickPoint));
             }
         }
+    }
+
+    public void handleMouseClick(Point point, MenuEntry menuEntry){
+        ViUtilities.getMenuEntryExtension().setMenuEntry(menuEntry);
+        handleMouseClick(point);
     }
 
     public void handleMouseClick(Rectangle rectangle) {
@@ -209,8 +212,37 @@ public class MouseInteractions {
         handleMouseClick(point);
     }
 
+    public void delayMouseClick(Point point, MenuEntry entry, long delay) {
+        ViUtilities.getExecutorService().submit(() ->
+        {
+            try {
+                sleep(delay);
+                handleMouseClick(point, entry);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void mouseClick(Point point, MenuEntry entry) {
+        ViUtilities.getExecutorService().submit(() ->
+        {
+            try {
+                handleMouseClick(point);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void mouseClick(Rectangle rectangle, MenuEntry entry){
+        Point point = getClickPoint(rectangle);
+        ViUtilities.getMenuEntryExtension().setMenuEntry(entry);
+        mouseClick(point, entry);
+    }
+
     public void delayMouseClick(Point point, long delay) {
-        viUtilities.getExecutorService().submit(() ->
+        ViUtilities.getExecutorService().submit(() ->
         {
             try {
                 sleep(delay);
@@ -221,34 +253,24 @@ public class MouseInteractions {
         });
     }
 
-    public void doActionMsTime(MenuEntry entry, Rectangle rect, long timeToDelay) {
-        Point point = getClickPoint(rect);
-        doActionMsTime(entry, point, timeToDelay);
-    }
 
-    public void doActionMsTime(MenuEntry entry, Rectangle rect) {
-        Point point = getClickPoint(rect);
-        doActionMsTime(entry, point);
-    }
-
-    public void doActionMsTime(MenuEntry entry, Point point, long timeToDelay) {
-        Runnable runnable = () -> {
-            menuEntryInteractions.insertMenuItem(entry);
-            handleMouseClick(point);
-        };
-        actionQueue.delayTime(timeToDelay, runnable);
-    }
-
-    public void doActionMsTime(MenuEntry entry, Point point) {
-        Runnable runnable = () -> {
-            menuEntryInteractions.insertMenuItem(entry);
-            handleMouseClick(point);
-        };
-        actionQueue.delayTime(0, runnable);
-    }
 
     public void delayMouseClick(Rectangle rectangle, long delay) {
         Point point = getClickPoint(rectangle);
+        ViUtilities.getExecutorService().submit(() ->
+        {
+            try {
+                sleep(delay);
+                handleMouseClick(point);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void delayMouseClick(Rectangle rectangle, MenuEntry entry, long delay) {
+        Point point = getClickPoint(rectangle);
+        ViUtilities.getMenuEntryExtension().setMenuEntry(entry);
         delayMouseClick(point, delay);
     }
 }

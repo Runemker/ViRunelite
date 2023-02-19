@@ -9,9 +9,9 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
+import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesPlugin;
 
 import javax.inject.Inject;
 
@@ -22,7 +22,7 @@ import javax.inject.Inject;
 		tags = {"viheiser"}
 )
 @Slf4j
-@PluginDependency(viUtilitiesPlugin.class)
+@PluginDependency(ViUtilitiesPlugin.class)
 public class viPrayerEnablerPlugin extends Plugin
 {
 	@Inject
@@ -32,7 +32,7 @@ public class viPrayerEnablerPlugin extends Plugin
 	@Inject
 	private ConfigManager configManager;
 	@Inject
-	private MenuEntryInteractions menuEntryInteractions;
+	private InvokeInteractions invokeInteractions;
 	@Inject
 	private WidgetMenuEntries widgetMenuEntries;
 	@Provides
@@ -61,7 +61,7 @@ public class viPrayerEnablerPlugin extends Plugin
 			return;
 
 		if(hasPrayerPoints() && config.enablePrayerFlick()) {
-			menuEntryInteractions.invokeMenuAction(widgetMenuEntries.createTogglePrayer());
+			invokeInteractions.invokeMenuAction(widgetMenuEntries.createTogglePrayer());
 		}
 	}
 

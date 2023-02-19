@@ -2,7 +2,6 @@ package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interact
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
@@ -15,7 +14,7 @@ import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflectio
 import javax.inject.Inject;
 
 @Slf4j
-public class MenuEntryInteractions {
+public class InvokeInteractions {
     @Inject
     private ReflectionManager reflectionManager;
     @Inject
@@ -28,7 +27,7 @@ public class MenuEntryInteractions {
     private ActionQueue actionQueue;
 
     public void invokeMenuAction(MenuEntry menuEntry, long delay){
-        actionQueue.delayTime(delay, () -> {
+        actionQueue.delayInvokesTime(delay, () -> {
             insertMenuItem(menuEntry);
             _invokeMenuAction(menuEntry);
         });

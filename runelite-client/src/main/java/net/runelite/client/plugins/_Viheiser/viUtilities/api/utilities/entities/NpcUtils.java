@@ -6,7 +6,7 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.NPC;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MouseInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public class NpcUtils {
     @Inject
     private NpcMenuEntries npcMenuEntries;
     @Inject
-    private MenuEntryInteractions menuEntryInteractions;
+    private InvokeInteractions invokeInteractions;
     @Inject
     private MouseInteractions mouseInteractions;
     @Inject
@@ -45,18 +45,18 @@ public class NpcUtils {
         }
         MenuEntry entry = npcMenuEntries.createNpcOption(npc.getIndex(), npcOption);
         if(mouseClick)
-            mouseInteractions.doActionMsTime(entry, npc.getConvexHull().getBounds(), delay);
+            mouseInteractions.delayMouseClick(npc.getConvexHull().getBounds(), entry, delay);
         else {
-            actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+            actionQueue.delayInvokesTime(delay, () -> invokeInteractions.invokeMenuAction(entry));
         }
     }
 
     public void interactWithNpc(NPC npc, MenuAction npcOption, boolean mouseClick, long delay) {
         MenuEntry entry = npcMenuEntries.createNpcOption(npc.getIndex(), npcOption);
         if(mouseClick)
-            mouseInteractions.doActionMsTime(entry, npc.getConvexHull().getBounds(), delay);
+            mouseInteractions.delayMouseClick(npc.getConvexHull().getBounds(), entry, delay);
         else
-            actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+            actionQueue.delayInvokesTime(delay, () -> invokeInteractions.invokeMenuAction(entry));
     }
 
     private int findActionIndex(String[] npcActions, String actionText) {
@@ -85,7 +85,7 @@ public class NpcUtils {
 
     public NPC findNearestNpc(String... npcNames) {
         if(!validChecks()) return null;
-        List<NPC> matchingNpcs = findMatchingNpcs( npcNames);
+        List<NPC> matchingNpcs = findMatchingNpcs(npcNames);
         WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         return findNearestNpc(matchingNpcs, playerLocation);
     }

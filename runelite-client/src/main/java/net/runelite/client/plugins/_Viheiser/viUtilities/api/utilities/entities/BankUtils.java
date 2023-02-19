@@ -9,11 +9,11 @@ import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.KeyboardInteractions;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MouseInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.BankMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.objectlists.Banks;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
+import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesPlugin;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,7 +26,7 @@ import static net.runelite.api.widgets.WidgetID.BANK_PIN_GROUP_ID;
 import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue.sleep;
 
 @Singleton
-@PluginDependency(viUtilitiesPlugin.class)
+@PluginDependency(ViUtilitiesPlugin.class)
 public class BankUtils {
     @Inject
     private Client client;
@@ -35,7 +35,7 @@ public class BankUtils {
     @Inject
     private ClientThread clientThread;
     @Inject
-    private MenuEntryInteractions menuEntryInteractions;
+    private InvokeInteractions invokeInteractions;
     @Inject
     private BankMenuEntries bankMenuEntries;
     @Inject
@@ -47,7 +47,7 @@ public class BankUtils {
     @Inject
     private MouseInteractions mouseInteractions;
     @Inject
-    private viUtilitiesPlugin plugin;
+    private ViUtilitiesPlugin plugin;
     @Inject
     private ActionQueue actionQueue;
     private boolean iterating;
@@ -70,9 +70,9 @@ public class BankUtils {
         if (bankCloseWidget != null) {
             MenuEntry entry = bankMenuEntries.createCloseBank();
             if(mouseClick)
-                plugin.getExecutorService().submit(() -> mouseInteractions.handleMouseClick(bankCloseWidget.getBounds()));
+                plugin.getExecutorService().submit(() -> mouseInteractions.delayMouseClick(bankCloseWidget.getBounds(), entry, delay));
             else
-                actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+                actionQueue.delayInvokesTime(delay, () -> invokeInteractions.invokeMenuAction(entry));
         }
     }
 
@@ -183,15 +183,15 @@ public class BankUtils {
             if (isDepositBoxOpen()) {
                 MenuEntry entry = bankMenuEntries.createDepositBoxDepositInventory();
                 if (mouseClick)
-                    plugin.getExecutorService().submit(() -> mouseInteractions.handleMouseClick(depositInventoryWidget.getBounds()));
+                    plugin.getExecutorService().submit(() -> mouseInteractions.delayMouseClick(depositInventoryWidget.getBounds(), entry, delay));
                 else
-                    actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+                    actionQueue.delayInvokesTime(delay, () -> invokeInteractions.invokeMenuAction(entry));
             } else {
                 MenuEntry entry = bankMenuEntries.createBankDepositInventory();
                 if (mouseClick)
-                    plugin.getExecutorService().submit(() -> mouseInteractions.handleMouseClick(depositInventoryWidget.getBounds()));
+                    plugin.getExecutorService().submit(() -> mouseInteractions.delayMouseClick(depositInventoryWidget.getBounds(), entry, delay));
                 else
-                    actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+                    actionQueue.delayInvokesTime(delay, () -> invokeInteractions.invokeMenuAction(entry));
             }
         }
     }
@@ -233,7 +233,7 @@ public class BankUtils {
             if (mouseClick)
                 plugin.getExecutorService().submit(() -> mouseInteractions.click(item.getBounds()));
             else
-                actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+                actionQueue.delayInvokesTime(delay, () -> invokeInteractions.invokeMenuAction(entry));
     }
 
     public void depositAllOfItem(int itemID, boolean mouseClick, long delay) {
@@ -275,7 +275,7 @@ public class BankUtils {
         }
         boolean depositBox = isDepositBoxOpen();
 
-        menuEntryInteractions.invokeMenuAction(bankMenuEntries.createDepositOneOfItem(item, depositBox));
+        invokeInteractions.invokeMenuAction(bankMenuEntries.createDepositOneOfItem(item, depositBox));
     }
 
     public void depositOneOfItem(int itemID) {
@@ -287,7 +287,7 @@ public class BankUtils {
     }
 
     private void withdrawAllItem(Widget bankItemToWithdraw) {
-        menuEntryInteractions.invokeMenuAction(bankMenuEntries.createWithdrawAllItems(bankItemToWithdraw));
+        invokeInteractions.invokeMenuAction(bankMenuEntries.createWithdrawAllItems(bankItemToWithdraw));
     }
 
     public void withdrawAllItem(int bankItemID) {
@@ -298,7 +298,7 @@ public class BankUtils {
     }
 
     private void withdrawItem(Widget bankItemToWithdraw) {
-        menuEntryInteractions.invokeMenuAction(bankMenuEntries.createWithdrawOneItem(bankItemToWithdraw));
+        invokeInteractions.invokeMenuAction(bankMenuEntries.createWithdrawOneItem(bankItemToWithdraw));
     }
 
     public void withdrawItem(int bankItemID) {
@@ -326,7 +326,7 @@ public class BankUtils {
                         identifier = (client.getVarbitValue(3960) == amount) ? 5 : 6;
                         break;
                 }
-                menuEntryInteractions.invokeMenuAction(bankMenuEntries.createWithdrawItemAmount(item, amount, identifier));
+                invokeInteractions.invokeMenuAction(bankMenuEntries.createWithdrawItemAmount(item, amount, identifier));
                 if (identifier == 6) {
                     plugin.getExecutorService().submit(() -> {
                         int toSleep = calculatorUtils.getRandomIntBetweenRange(1000, 1500);

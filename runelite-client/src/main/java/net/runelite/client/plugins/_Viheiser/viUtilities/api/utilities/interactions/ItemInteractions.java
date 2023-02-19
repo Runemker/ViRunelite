@@ -10,15 +10,15 @@ import javax.inject.Inject;
 
 public class ItemInteractions {
     @Inject
-    public Client client;
+    private Client client;
     @Inject
-    public ReflectionManager reflectionManager;
+    private ReflectionManager reflectionManager;
 
     public void useItemOnItem(Widget firstItem, Widget secondItem){
-        setSelectedInventoryItem(firstItem);
+        setSelectedItem(firstItem);
     }
 
-    private void setSelectedInventoryItem(Widget item) {
+    public void setSelectedItem(Widget item) {
         reflectionManager.setFieldValue(FieldNameMapping.SELECTED_SPELL_WIDGET, WidgetInfo.INVENTORY.getId(), client);
         reflectionManager.setFieldValue(FieldNameMapping.SELECTED_SPELL_CHILD_INDEX, item.getIndex(), client);
         reflectionManager.setFieldValue(FieldNameMapping.SELECTED_SPELL_ITEM_ID, item.getItemId(), client);

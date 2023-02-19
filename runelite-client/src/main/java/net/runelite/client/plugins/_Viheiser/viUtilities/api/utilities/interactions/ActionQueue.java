@@ -3,17 +3,15 @@ package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interact
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.api.MenuEntry;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.PluginDependency;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
+import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesPlugin;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,7 +19,7 @@ import java.util.function.Supplier;
 
 @Slf4j
 @Singleton
-@PluginDependency(viUtilitiesPlugin.class)
+@PluginDependency(ViUtilitiesPlugin.class)
 public class ActionQueue {
     @Inject
     private Client client;
@@ -30,7 +28,7 @@ public class ActionQueue {
     @Inject
     private MouseInteractions mouseInteractions;
     @Inject
-    private viUtilitiesPlugin plugin;
+    private ViUtilitiesPlugin plugin;
     public final List<DelayedAction> delayedActions = new ArrayList<>();
     private int clientTick = 0;
     private int gameTick = 0;
@@ -74,13 +72,11 @@ public class ActionQueue {
     }
 
     public void runLater(Supplier<Boolean> condition, Runnable runnable) {
-        clientThread.invoke(() -> {
-            if (condition.get()) {
-                runnable.run();
-            } else {
-                delayedActions.add(new DelayedAction(condition, runnable));
-            }
-        });
+        if (condition.get()) {
+            runnable.run();
+        } else {
+            delayedActions.add(new DelayedAction(condition, runnable));
+        }
     }
 
     public void delayGameTicks(long delay, Runnable runnable) {
@@ -93,13 +89,18 @@ public class ActionQueue {
         runLater(() -> clientTick >= when, runnable);
     }
 
-    public void delayTime(long delay, Runnable runnable) {
+    public void delayInvokesTime(long delay, Runnable runnable) {
         plugin.getExecutorService().submit(() -> {
             clientThread.invoke(() -> {
                 sleep(delay);
                 runnable.run();
             });
         });
+    }
+
+    public void delayMouseTime(long delay, Runnable runnable) {
+        long when = System.currentTimeMillis() + delay;
+        runLater(() -> System.currentTimeMillis() >= when, runnable);
     }
 
     @Value

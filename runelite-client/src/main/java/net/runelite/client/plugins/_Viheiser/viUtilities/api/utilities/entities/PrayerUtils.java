@@ -7,7 +7,7 @@ import net.runelite.api.Varbits;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.enums.ExtendedPrayer;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 
 import javax.inject.Inject;
@@ -18,7 +18,7 @@ public class PrayerUtils {
     @Inject
     private Client client;
     @Inject
-    private MenuEntryInteractions menuEntryInteractions;
+    private InvokeInteractions invokeInteractions;
     @Inject
     private WidgetMenuEntries widgetMenuEntries;
 
@@ -32,7 +32,7 @@ public class PrayerUtils {
 
     public void toggle(ExtendedPrayer prayer) {
         Widget widget = client.getWidget(prayer.getWidgetInfo());
-        menuEntryInteractions.invokeMenuAction(widgetMenuEntries.createEnablePrayer(widget));
+        invokeInteractions.invokeMenuAction(widgetMenuEntries.createEnablePrayer(widget));
     }
 
     public ExtendedPrayer getActivePrayer(){
@@ -51,7 +51,7 @@ public class PrayerUtils {
     public void toggleQuickPrayer() {
         Widget widget = client.getWidget(WidgetInfo.MINIMAP_QUICK_PRAYER_ORB);
         if (widget != null) {
-            menuEntryInteractions.invokeMenuAction(widgetMenuEntries.createTogglePrayer());
+            invokeInteractions.invokeMenuAction(widgetMenuEntries.createTogglePrayer());
         }
     }
 }

@@ -12,9 +12,9 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
+import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesPlugin;
 
 import javax.inject.Inject;
 
@@ -25,7 +25,7 @@ import javax.inject.Inject;
 		tags = {"sundar", "pajeet", "viheiser"}
 )
 @Slf4j
-@PluginDependency(viUtilitiesPlugin.class)
+@PluginDependency(ViUtilitiesPlugin.class)
 public class OneClickRunEnablePlugin extends Plugin
 {
 	@Inject
@@ -33,7 +33,7 @@ public class OneClickRunEnablePlugin extends Plugin
 	@Inject
 	public Client client;
 	@Inject
-	public MenuEntryInteractions menuEntryInteractions;
+	public InvokeInteractions invokeInteractions;
 	@Inject
 	public WidgetMenuEntries widgetMenuEntries;
 	@Inject
@@ -100,7 +100,7 @@ public class OneClickRunEnablePlugin extends Plugin
 	}
 
 	private void swapToRunMenuItem() {
-		menuEntryInteractions.insertMenuItem(
+		invokeInteractions.insertMenuItem(
 				createSwappedMenuEntry()
 		);
 	}
@@ -112,7 +112,7 @@ public class OneClickRunEnablePlugin extends Plugin
 	}
 
 	private void toggleRun(){
-		menuEntryInteractions.invokeMenuAction(widgetMenuEntries.createToggleRunEntry());
+		invokeInteractions.invokeMenuAction(widgetMenuEntries.createToggleRunEntry());
 	}
 
 	private MenuEntry createSwappedMenuEntry(){

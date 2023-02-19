@@ -22,22 +22,19 @@ import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.InventoryUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.PlayerUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.WalkInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
+import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesPlugin;
 import net.runelite.client.util.HotkeyListener;
 
 import javax.inject.Inject;
 import java.util.*;
 
-import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue.sleep;
-
-@PluginDependency(viUtilitiesPlugin.class)
+@PluginDependency(ViUtilitiesPlugin.class)
 @PluginDescriptor(
         name = "ViFisher",
         description = "power fishes",
@@ -59,7 +56,7 @@ public class ViFisherPlugin extends Plugin
     @Inject
     private PlayerUtils playerUtils;
     @Inject
-    private MenuEntryInteractions menuEntryInteractions;
+    private InvokeInteractions invokeInteractions;
     @Inject
     private WalkInteractions walkInteractions;
     @Inject
@@ -81,7 +78,7 @@ public class ViFisherPlugin extends Plugin
     @Inject
     private DialogUtils dialogUtils;
     @Inject
-    private viUtilitiesPlugin viUtilities;
+    private ViUtilitiesPlugin viUtilities;
     @Inject
     private ChatMessageHandler chatMessageHandler;
 
@@ -175,7 +172,6 @@ public class ViFisherPlugin extends Plugin
     }
 
     private void interactWithFishingSpot() {
-        chatMessageHandler.sendGameMessage("going now!");
         NPC fishSpot = npcUtils.findNearestNpc(fish.getNpcId());
         npcUtils.interactWithNpc(fishSpot, fish.getNpcAction(), useMouseClicks(), sleepDelay());
     }
@@ -208,7 +204,7 @@ public class ViFisherPlugin extends Plugin
     }
 
     private void handleDrop() {
-        inventoryUtils.dropItems(fish.getItemId(), true, useMouseClicks(), sleepDelay());
+        inventoryUtils.dropItems(fish.getItemId(), true, sleepDelay());
 //        if (dropListIterator.hasNext()) {
 //            menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(dropListIterator.next()));
 //            return;

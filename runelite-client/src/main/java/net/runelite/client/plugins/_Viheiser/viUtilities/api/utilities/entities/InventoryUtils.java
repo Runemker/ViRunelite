@@ -7,10 +7,10 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MouseInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
+import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesPlugin;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,13 +30,13 @@ public class InventoryUtils {
     @Inject
     private ItemManager itemManager;
     @Inject
-    private MenuEntryInteractions menuEntryInteractions;
+    private InvokeInteractions invokeInteractions;
     @Inject
     private InventoryEntries inventoryEntries;
     @Inject
     private CalculatorUtils calculatorUtils;
     @Inject
-    private viUtilitiesPlugin plugin;
+    private ViUtilitiesPlugin plugin;
     @Inject
     private MouseInteractions mouseInteractions;
     @Inject
@@ -64,7 +64,7 @@ public class InventoryUtils {
             int id = itemOptionToId(itemWidget.getItemId(), option);
             MenuEntry entry = inventoryEntries.createInteractWithItem(itemWidget, id, idToMenuAction(id));
             if (entry != null) {
-                actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+                actionQueue.delayInvokesTime(delay, () -> invokeInteractions.invokeMenuAction(entry));
             }
         }
     }
@@ -75,7 +75,7 @@ public class InventoryUtils {
         if (entry != null) {
             Widget item = getItem(boxedIds);
             if (item != null) {
-                mouseInteractions.doActionMsTime(entry, item.getBounds(), delay);
+                mouseInteractions.delayMouseClick(item.getBounds(), delay);
             }
         }
     }
@@ -213,9 +213,9 @@ public class InventoryUtils {
                     sleep(delay);
                     MenuEntry entry = inventoryEntries.createDropItemEntry(item);
                     if (mouseClick)
-                        mouseInteractions.doActionMsTime(entry, item.getBounds());
+                        mouseInteractions.mouseClick(item.getBounds(), entry);
                     else
-                        menuEntryInteractions.invokeMenuAction(entry);
+                        invokeInteractions.invokeMenuAction(entry);
 
                 }
                 plugin.setIterating(false);
@@ -266,15 +266,15 @@ public class InventoryUtils {
         if(mouseClick)
             mouseInteractions.click(item.getBounds());
         else
-            menuEntryInteractions.invokeMenuAction(inventoryEntries.createDropItemEntry(item));
+            invokeInteractions.invokeMenuAction(inventoryEntries.createDropItemEntry(item));
     }
 
-    public void dropInventory(boolean mouseClick, long sleep) {
+    public void dropInventory(long sleep) {
         if (bank.isOpen() || bank.isDepositBoxOpen()) {
             return;
         }
         Collection<Integer> inventoryItems = getAllInventoryItems().stream().map(item -> item.getItemId()).collect(Collectors.toList());
-        dropItems(inventoryItems, true, mouseClick, sleep);
+        dropItems(inventoryItems, true, sleep);
     }
 
     private Widget getItemAtIndex(int itemId, int index){
@@ -289,7 +289,7 @@ public class InventoryUtils {
         return null;
     }
 
-    public void dropItems(Collection<Integer> ids, boolean dropAll, boolean mouseClick, long delay) {
+    public void dropItems(Collection<Integer> ids, boolean dropAll, long delay) {
         if (bank.isOpen() || bank.isDepositBoxOpen()) {
             return;
         }
@@ -302,10 +302,7 @@ public class InventoryUtils {
                 for (Widget item : inventoryItems) {
                     sleep(delay);
                     MenuEntry entry = inventoryEntries.createDropItemEntry(item);
-                    if (mouseClick)
-                        mouseInteractions.doActionMsTime(entry, item.getBounds());
-                    else
-                        menuEntryInteractions.invokeMenuAction(entry);
+                    invokeInteractions.invokeMenuAction(entry);
                     if (!dropAll) {
                         break;
                     }

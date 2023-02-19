@@ -16,7 +16,7 @@ import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.PlayerUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.bank.BankBase;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.bank.ShiloVillage;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.enums.Actions;
@@ -26,12 +26,12 @@ import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interacti
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
-import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
+import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesPlugin;
 
 import javax.inject.Inject;
 import java.util.*;
 
-@PluginDependency(viUtilitiesPlugin.class)
+@PluginDependency(ViUtilitiesPlugin.class)
 @PluginDescriptor(
         name = "viOneClickFishing",
         description = "viOneClickFishing",
@@ -53,7 +53,7 @@ public class viOneClickFishingPlugin  extends Plugin
     @Inject
     private PlayerUtils playerUtils;
     @Inject
-    private MenuEntryInteractions menuEntryInteractions;
+    private InvokeInteractions invokeInteractions;
     @Inject
     private WalkInteractions walkInteractions;
     @Inject
@@ -299,7 +299,7 @@ public class viOneClickFishingPlugin  extends Plugin
     }
 
     private void setNewEntry(MenuOptionClicked event, MenuEntry menuEntry){
-        menuEntryInteractions.invokeMenuAction(menuEntry);
+        invokeInteractions.invokeMenuAction(menuEntry);
 //        menuEntryInteractions.insertMenuItem(menuEntry);
 //        event.getMenuEntry().setOption(menuEntry.getOption());
 //        event.getMenuEntry().setTarget(menuEntry.getTarget());

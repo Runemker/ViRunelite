@@ -4,7 +4,7 @@ import net.runelite.api.*;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.ChatMessageHandler;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.FieldNameMapping;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.ReflectionManager;
@@ -28,7 +28,7 @@ public class PlayerUtils {
     @Inject
     private ChatMessageHandler chatMessageHandler;
     @Inject
-    private MenuEntryInteractions menuEntryInteractions;
+    private InvokeInteractions invokeInteractions;
     @Inject
     private WidgetMenuEntries widgetMenuEntries;
     @Inject
@@ -95,7 +95,7 @@ public class PlayerUtils {
 
     public void enableRun() {
         chatMessageHandler.sendGameMessage("Enabling Run");
-        menuEntryInteractions.invokeMenuAction(widgetMenuEntries.createToggleRunEntry());
+        invokeInteractions.invokeMenuAction(widgetMenuEntries.createToggleRunEntry());
     }
 
     //Checks if Stamina enhancement is active and if stamina potion is in inventory
