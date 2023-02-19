@@ -1,29 +1,32 @@
 package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import net.runelite.api.*;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.KeyboardInteractions;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MouseInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.BankMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.objectlists.Banks;
 import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static java.awt.event.KeyEvent.VK_ENTER;
 import static net.runelite.api.widgets.WidgetID.BANK_PIN_GROUP_ID;
-import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.Sleeping.sleep;
+import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue.sleep;
 
 @Singleton
+@PluginDependency(viUtilitiesPlugin.class)
 public class BankUtils {
     @Inject
     private Client client;
@@ -32,7 +35,7 @@ public class BankUtils {
     @Inject
     private ClientThread clientThread;
     @Inject
-    private MenuEntryInteraction menuEntryInteraction;
+    private MenuEntryInteractions menuEntryInteractions;
     @Inject
     private BankMenuEntries bankMenuEntries;
     @Inject
@@ -42,7 +45,11 @@ public class BankUtils {
     @Inject
     private KeyboardInteractions keyboardInteractions;
     @Inject
+    private MouseInteractions mouseInteractions;
+    @Inject
     private viUtilitiesPlugin plugin;
+    @Inject
+    private ActionQueue actionQueue;
     private boolean iterating;
     public boolean isDepositBoxOpen() {
         return client.getWidget(WidgetInfo.DEPOSIT_BOX_INVENTORY_ITEMS_CONTAINER) != null;
@@ -54,15 +61,18 @@ public class BankUtils {
         return client.getItemContainer(InventoryID.BANK) != null && !bankWidget.isHidden(); //TODO handle client thread for isHidden
     }
 
-    public void close() {
+    public void close(boolean mouseClick, long delay) {
         if (!isOpen()) {
             return;
         }
-        menuEntryInteraction.invokeMenuAction(bankMenuEntries.createCloseBank());
         final int exitButtonId = 13;
         Widget bankCloseWidget = client.getWidget(BANK_PIN_GROUP_ID, exitButtonId);
         if (bankCloseWidget != null) {
-            menuEntryInteraction.invokeMenuAction(bankMenuEntries.createCloseBank());
+            MenuEntry entry = bankMenuEntries.createCloseBank();
+            if(mouseClick)
+                plugin.getExecutorService().submit(() -> mouseInteractions.handleMouseClick(bankCloseWidget.getBounds()));
+            else
+                actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
         }
     }
 
@@ -164,25 +174,29 @@ public class BankUtils {
         return null;
     }
 
-    public void depositAll() {
+    public void depositAll(boolean mouseClick, long delay) {
         if (!isOpen() && !isDepositBoxOpen()) {
             return;
         }
-        plugin.getExecutorService().submit(() ->
-        {
-            Widget depositInventoryWidget = client.getWidget(WidgetInfo.BANK_DEPOSIT_INVENTORY);
-            if ((depositInventoryWidget != null)) {
-                if (isDepositBoxOpen()) {
-                    menuEntryInteraction.invokeMenuAction(bankMenuEntries.createDepositBoxDepositInventory());
-                } else {
-                    menuEntryInteraction.insertMenuItem(bankMenuEntries.createBankDepositInventory());
-                }
-
+        Widget depositInventoryWidget = client.getWidget(WidgetInfo.BANK_DEPOSIT_INVENTORY);
+        if ((depositInventoryWidget != null)) {
+            if (isDepositBoxOpen()) {
+                MenuEntry entry = bankMenuEntries.createDepositBoxDepositInventory();
+                if (mouseClick)
+                    plugin.getExecutorService().submit(() -> mouseInteractions.handleMouseClick(depositInventoryWidget.getBounds()));
+                else
+                    actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+            } else {
+                MenuEntry entry = bankMenuEntries.createBankDepositInventory();
+                if (mouseClick)
+                    plugin.getExecutorService().submit(() -> mouseInteractions.handleMouseClick(depositInventoryWidget.getBounds()));
+                else
+                    actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
             }
-        });
+        }
     }
 
-    public void depositAllExcept(Collection<Integer> ids) {
+    public void depositAllExcept(Collection<Integer> ids, boolean mouseClick, long delay) {
         if (!isOpen() && !isDepositBoxOpen()) {
             return;
         }
@@ -193,10 +207,11 @@ public class BankUtils {
         {
             try {
                 iterating = true;
+                int emptyWidgetSlot = 6512;
                 for (Widget item : inventoryItems) {
-                    if (!ids.contains(item.getId()) && item.getId() != 6512 && !depositedItems.contains(item.getId())) //6512 is empty widget slot
+                    if (!ids.contains(item.getId()) && item.getId() != emptyWidgetSlot && !depositedItems.contains(item.getId()))
                     {
-                        depositAllOfItem(item);
+                        depositAllOfItem(item, mouseClick, delay);
                         depositedItems.add(item.getId());
                     }
                 }
@@ -209,22 +224,26 @@ public class BankUtils {
         });
     }
 
-    public void depositAllOfItem(Widget item) {
+    public void depositAllOfItem(Widget item, boolean mouseClick, long delay) {
         if (!isOpen() && !isDepositBoxOpen()) {
             return;
         }
         boolean depositBox = isDepositBoxOpen();
-        menuEntryInteraction.invokeMenuAction(bankMenuEntries.createDepositAllOfItem(item, depositBox));
+        MenuEntry entry = bankMenuEntries.createDepositAllOfItem(item, depositBox);
+            if (mouseClick)
+                plugin.getExecutorService().submit(() -> mouseInteractions.click(item.getBounds()));
+            else
+                actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
     }
 
-    public void depositAllOfItem(int itemID) {
+    public void depositAllOfItem(int itemID, boolean mouseClick, long delay) {
         if (!isOpen() && !isDepositBoxOpen()) {
             return;
         }
-        depositAllOfItem(inventoryUtils.getWidget(itemID));
+        depositAllOfItem(inventoryUtils.getItem(itemID), mouseClick, delay);
     }
 
-    public void depositAllOfItems(Collection<Integer> itemIDs) {
+    public void depositAllOfItems(Collection<Integer> itemIDs, boolean mouseClick, long delay) {
         if (!isOpen() && !isDepositBoxOpen()) {
             return;
         }
@@ -235,9 +254,9 @@ public class BankUtils {
             try {
                 iterating = true;
                 for (Widget item : inventoryItems) {
-                    if (itemIDs.contains(item.getId()) && !depositedItems.contains(item.getId())) //6512 is empty widget slot
+                    if (itemIDs.contains(item.getId()) && !depositedItems.contains(item.getId()))
                     {
-                        depositAllOfItem(item);
+                        depositAllOfItem(item, mouseClick, delay);
                         depositedItems.add(item.getId());
                     }
                 }
@@ -256,7 +275,7 @@ public class BankUtils {
         }
         boolean depositBox = isDepositBoxOpen();
 
-        menuEntryInteraction.invokeMenuAction(bankMenuEntries.createDepositOneOfItem(item, depositBox));
+        menuEntryInteractions.invokeMenuAction(bankMenuEntries.createDepositOneOfItem(item, depositBox));
     }
 
     public void depositOneOfItem(int itemID) {
@@ -264,11 +283,11 @@ public class BankUtils {
             return;
         }
 
-        depositOneOfItem(inventoryUtils.getWidget(itemID));
+        depositOneOfItem(inventoryUtils.getItem(itemID));
     }
 
     private void withdrawAllItem(Widget bankItemToWithdraw) {
-        menuEntryInteraction.invokeMenuAction(bankMenuEntries.createWithdrawAllItems(bankItemToWithdraw));
+        menuEntryInteractions.invokeMenuAction(bankMenuEntries.createWithdrawAllItems(bankItemToWithdraw));
     }
 
     public void withdrawAllItem(int bankItemID) {
@@ -279,7 +298,7 @@ public class BankUtils {
     }
 
     private void withdrawItem(Widget bankItemToWithdraw) {
-        menuEntryInteraction.invokeMenuAction(bankMenuEntries.createWithdrawOneItem(bankItemToWithdraw));
+        menuEntryInteractions.invokeMenuAction(bankMenuEntries.createWithdrawOneItem(bankItemToWithdraw));
     }
 
     public void withdrawItem(int bankItemID) {
@@ -307,12 +326,14 @@ public class BankUtils {
                         identifier = (client.getVarbitValue(3960) == amount) ? 5 : 6;
                         break;
                 }
-                menuEntryInteraction.invokeMenuAction(bankMenuEntries.createWithdrawItemAmount(item, amount, identifier));
+                menuEntryInteractions.invokeMenuAction(bankMenuEntries.createWithdrawItemAmount(item, amount, identifier));
                 if (identifier == 6) {
                     plugin.getExecutorService().submit(() -> {
-                        sleep(calculatorUtils.getRandomIntBetweenRange(1000, 1500));
+                        int toSleep = calculatorUtils.getRandomIntBetweenRange(1000, 1500);
+                        sleep(toSleep);
                         keyboardInteractions.typeString(String.valueOf(amount));
-                        sleep(calculatorUtils.getRandomIntBetweenRange(80, 250));
+                        toSleep = calculatorUtils.getRandomIntBetweenRange(80, 250);
+                        sleep(toSleep);
                         keyboardInteractions.pressKey(VK_ENTER);
                     });
                 }

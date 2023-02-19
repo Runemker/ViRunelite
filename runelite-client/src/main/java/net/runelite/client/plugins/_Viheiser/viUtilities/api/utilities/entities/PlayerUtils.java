@@ -2,10 +2,9 @@ package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities
 
 import net.runelite.api.*;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.ChatMessageHandler;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.FieldNameMapping;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.ReflectionManager;
@@ -29,7 +28,7 @@ public class PlayerUtils {
     @Inject
     private ChatMessageHandler chatMessageHandler;
     @Inject
-    private MenuEntryInteraction menuEntryInteraction;
+    private MenuEntryInteractions menuEntryInteractions;
     @Inject
     private WidgetMenuEntries widgetMenuEntries;
     @Inject
@@ -60,14 +59,14 @@ public class PlayerUtils {
     }
 
     //enables run if below given minimum energy with random positive variation
-    public void handleRun(int minEnergy, int randMax) {
+    public void handleRun(int minEnergy, int randMax, long delay) {
         assert client.isClientThread();
         if (nextRunEnergy < minEnergy || nextRunEnergy > minEnergy + randMax) {
             nextRunEnergy = calculatorUtils.getRandomIntBetweenRange(minEnergy, minEnergy + calculatorUtils.getRandomIntBetweenRange(0, randMax));
         }
         if (client.getEnergy() > nextRunEnergy ||
                 client.getVarbitValue(Varbits.RUN_SLOWED_DEPLETION_ACTIVE) != 0) {
-            if (drinkStaminaPotion(15 + calculatorUtils.getRandomIntBetweenRange(0, 30))) {
+            if (drinkStaminaPotion(15 + calculatorUtils.getRandomIntBetweenRange(0, 30), delay)) {
                 return;
             }
             if (!isRunEnabled()) {
@@ -77,14 +76,14 @@ public class PlayerUtils {
         }
     }
 
-    public void handleRun(int minEnergy, int randMax, int potEnergy) {
+    public void handleRun(int minEnergy, int randMax, int potEnergy, long delay) {
         assert client.isClientThread();
         if (nextRunEnergy < minEnergy || nextRunEnergy > minEnergy + randMax) {
             nextRunEnergy = calculatorUtils.getRandomIntBetweenRange(minEnergy, minEnergy + calculatorUtils.getRandomIntBetweenRange(0, randMax));
         }
         if (client.getEnergy() > (minEnergy + calculatorUtils.getRandomIntBetweenRange(0, randMax)) ||
                 client.getVarbitValue(Varbits.RUN_SLOWED_DEPLETION_ACTIVE) != 0) {
-            if (drinkStaminaPotion(potEnergy)) {
+            if (drinkStaminaPotion(potEnergy, delay)) {
                 return;
             }
             if (!isRunEnabled()) {
@@ -96,7 +95,7 @@ public class PlayerUtils {
 
     public void enableRun() {
         chatMessageHandler.sendGameMessage("Enabling Run");
-        menuEntryInteraction.invokeMenuAction(widgetMenuEntries.createToggleRunEntry());
+        menuEntryInteractions.invokeMenuAction(widgetMenuEntries.createToggleRunEntry());
     }
 
     //Checks if Stamina enhancement is active and if stamina potion is in inventory
@@ -108,19 +107,20 @@ public class PlayerUtils {
 
         if (!inventoryUtils.getInventoryItems(STAMINA_POTIONS).isEmpty()
                 && client.getVarbitValue(Varbits.RUN_SLOWED_DEPLETION_ACTIVE) == 0 && client.getEnergy() < energy && !bankUtils.isOpen()) {
-            return inventoryUtils.getWidget(STAMINA_POTIONS);
+            return inventoryUtils.getItem(STAMINA_POTIONS);
         } else {
             return null;
         }
     }
 
-    public boolean drinkStaminaPotion(int energy) {
+    public boolean drinkStaminaPotion(int energy, long delay) {
         Widget staminaPotion = shouldDrunkStaminaPotion(energy);
         if (staminaPotion != null) {
             chatMessageHandler.sendGameMessage("Drinking Stamina Potion");
             inventoryUtils.interactWithItemInvoke(
                     staminaPotion.getId(),
-                    "drink"
+                    "drink",
+                    delay
             );
             return true;
         }

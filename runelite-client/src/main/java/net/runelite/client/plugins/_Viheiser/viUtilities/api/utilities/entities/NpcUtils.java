@@ -2,9 +2,12 @@ package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities
 
 import net.runelite.api.Client;
 import net.runelite.api.MenuAction;
+import net.runelite.api.MenuEntry;
 import net.runelite.api.NPC;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MouseInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,12 +24,16 @@ public class NpcUtils {
     @Inject
     private NpcMenuEntries npcMenuEntries;
     @Inject
-    private MenuEntryInteraction menuEntryInteraction;
+    private MenuEntryInteractions menuEntryInteractions;
+    @Inject
+    private MouseInteractions mouseInteractions;
+    @Inject
+    private ActionQueue actionQueue;
     private int calculateDistance(WorldPoint point1, WorldPoint point2) {
         return point1.distanceTo(point2);
     }
 
-    public void invokeMenuOption(NPC npc, String actionText) {
+    public void interactWithNpc(NPC npc, String actionText, boolean mouseClick, long delay) {
         String[] npcActions = npc.getComposition().getActions();
         int actionIndex = findActionIndex(npcActions, actionText);
         if (actionIndex == -1) {
@@ -36,11 +43,20 @@ public class NpcUtils {
         if (npcOption == null) {
             return;
         }
-        menuEntryInteraction.invokeMenuAction(npcMenuEntries.createNpcOption(npc.getIndex(), npcOption));
+        MenuEntry entry = npcMenuEntries.createNpcOption(npc.getIndex(), npcOption);
+        if(mouseClick)
+            mouseInteractions.doActionMsTime(entry, npc.getConvexHull().getBounds(), delay);
+        else
+            actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+
     }
 
-    public void invokeMenuOption(NPC npc, MenuAction npcOption) {
-        menuEntryInteraction.invokeMenuAction(npcMenuEntries.createNpcOption(npc.getIndex(), npcOption));
+    public void interactWithNpc(NPC npc, MenuAction npcOption, boolean mouseClick, long delay) {
+        MenuEntry entry = npcMenuEntries.createNpcOption(npc.getIndex(), npcOption);
+        if(mouseClick)
+            mouseInteractions.doActionMsTime(entry, npc.getConvexHull().getBounds(), delay);
+        else
+            actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
     }
 
     private int findActionIndex(String[] npcActions, String actionText) {
@@ -69,26 +85,26 @@ public class NpcUtils {
 
     public NPC findNearestNpc(String... npcNames) {
         if(!validChecks()) return null;
-        List<NPC> matchingNpcs = findMatchingNpcs(false, npcNames);
+        List<NPC> matchingNpcs = findMatchingNpcs( npcNames);
         WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         return findNearestNpc(matchingNpcs, playerLocation);
     }
 
     public NPC findNearestNpc(int... npcIds) {
         if(!validChecks()) return null;
-        List<NPC> matchingNpcs = findMatchingNpcs(true, npcIds);
+        List<NPC> matchingNpcs = findMatchingNpcs(npcIds);
         WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         return findNearestNpc(matchingNpcs, playerLocation);
     }
 
     public NPC findNearestNpc(Collection<Integer> npcIds) {
         if(!validChecks()) return null;
-        List<NPC> matchingNpcs = findMatchingNpcs(true, npcIds);
+        List<NPC> matchingNpcs = findMatchingNpcs(npcIds);
         WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
         return findNearestNpc(matchingNpcs, playerLocation);
     }
 
-    private List<NPC> findMatchingNpcs(boolean isId, Object... npcIdsOrNames) {
+    private List<NPC> findMatchingNpcs(Object... npcIdsOrNames) {
         List<NPC> matchingNpcs = new ArrayList<>();
         List<NPC> npcList = client.getNpcs();
         Object[] idsOrNamesArray = checkIfNested(npcIdsOrNames);
@@ -96,9 +112,9 @@ public class NpcUtils {
         for (NPC npc : npcList) {
             for (Object npcIdOrName : idsOrNamesArray) {
                 boolean match = false;
-                if (isId && npcIdOrName instanceof Integer && npc.getId() == (int) npcIdOrName) {
+                if (npcIdOrName instanceof Integer && npc.getId() == (int) npcIdOrName) {
                     match = true;
-                } else if (!isId && npcIdOrName instanceof String && npc.getName().equals(npcIdOrName)) {
+                } else if (npcIdOrName instanceof String && npc.getName().equals(npcIdOrName)) {
                     match = true;
                 }
                 if (match) {
@@ -114,7 +130,7 @@ public class NpcUtils {
     @NotNull
     private static Object[] checkIfNested(Object[] npcIdsOrNames) {
         Object[] idsOrNamesArray;
-        if (npcIdsOrNames.length == 1 && npcIdsOrNames[0] instanceof Collection<?>) {
+        if (npcIdsOrNames.length == 1) {
             idsOrNamesArray = ((Collection<?>) npcIdsOrNames[0]).toArray();
         } else {
             idsOrNamesArray = npcIdsOrNames;

@@ -4,11 +4,12 @@ import com.google.inject.Provides;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.*;
+import net.runelite.api.Client;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue;
 import net.runelite.client.plugins._Viheiser.viUtilities.events.ProjectileSpawnedHandler;
 
 import javax.inject.Inject;
@@ -34,6 +35,8 @@ public class viUtilitiesPlugin extends Plugin
 	private EventBus eventBus;
 	@Inject
 	private ProjectileSpawnedHandler projectileSpawnedHandler;
+	@Inject
+	private ActionQueue actionQueue;
 	@Getter
 	@Setter
 	private boolean iterating;
@@ -49,6 +52,7 @@ public class viUtilitiesPlugin extends Plugin
 	{
 		executorService = Executors.newSingleThreadExecutor();
 		eventBus.register(projectileSpawnedHandler);
+		eventBus.register(actionQueue);
 	}
 
 	@Override

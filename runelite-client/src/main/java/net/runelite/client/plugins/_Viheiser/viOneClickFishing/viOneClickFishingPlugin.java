@@ -16,7 +16,7 @@ import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.PlayerUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.bank.BankBase;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.bank.ShiloVillage;
 import net.runelite.client.plugins._Viheiser.viOneClickFishing.enums.Actions;
@@ -53,7 +53,7 @@ public class viOneClickFishingPlugin  extends Plugin
     @Inject
     private PlayerUtils playerUtils;
     @Inject
-    private MenuEntryInteraction menuEntryInteraction;
+    private MenuEntryInteractions menuEntryInteractions;
     @Inject
     private WalkInteractions walkInteractions;
     @Inject
@@ -112,8 +112,8 @@ public class viOneClickFishingPlugin  extends Plugin
             event.consume();
         }
 
-        handleClick();
-        event.consume();
+        handleClick(event);
+        MenuEntry[] menuEntries = client.getMenuEntries();
     }
 
     private boolean shouldConsume() {
@@ -174,28 +174,28 @@ public class viOneClickFishingPlugin  extends Plugin
         }
     }
 
-    private void handleClick() {
+    private void handleClick(MenuOptionClicked event) {
         if (dropping && method.equals(Method.DROP)) {
-            handleDrop();
+            handleDrop(event);
         } else {
-            handleFishing();
+            handleFishing(event);
         }
     }
 
-    private void handleFishing() {
+    private void handleFishing(MenuOptionClicked event) {
         if (shouldOpenInventory()) {
-            menuEntryInteraction.invokeMenuAction(widgetMenuEntries.openInventory());
+            setNewEntry(event, widgetMenuEntries.openInventory());
             return;
         }
 
         if (bankIsOpen() && inventoryContainsFish()) {
-            menuEntryInteraction.invokeMenuAction(widgetMenuEntries.createDepositItemInBank(getInventoryItem(fish.getItemId())));
+            setNewEntry(event, widgetMenuEntries.createDepositItemInBank(getInventoryItem(fish.getItemId())));
             return;
         }
         else {
             if (inventoryIsFull()) {
                 if (bankSpot.canSeeBank()) {
-                    menuEntryInteraction.invokeMenuAction(bankSpot.openBank());
+                    setNewEntry(event, bankSpot.openBank());
                     return;
                 } else {
                     walkNearBank();
@@ -206,7 +206,7 @@ public class viOneClickFishingPlugin  extends Plugin
             if(method.equals(Method.BANK)) {
                 if (bankSpot.canSeeFish()) {
                     NPC fishingSpot = npcUtils.findNearestNpc(fish.getNpcId().stream().mapToInt(Integer::intValue).toArray());
-                    menuEntryInteraction.invokeMenuAction(npcMenuEntries.createNpcOption(fishingSpot.getIndex(), MenuAction.NPC_FIRST_OPTION));
+                    setNewEntry(event, npcMenuEntries.createNpcOption(fishingSpot.getIndex(), MenuAction.NPC_FIRST_OPTION));
                 } else {
                     if (bankSpot.getAreaNearFish() != null) {
                         walkNearFish();
@@ -216,9 +216,8 @@ public class viOneClickFishingPlugin  extends Plugin
             }
 
             if(method.equals(Method.DROP)){
-                NPC fishingSpot = npcUtils.findNearestNpc(fish.getNpcId().stream().mapToInt(Integer::intValue).toArray());
-                menuEntryInteraction.invokeMenuAction(npcMenuEntries.createNpcOption(fishingSpot.getIndex(), MenuAction.NPC_FIRST_OPTION));
-                return;
+                NPC fishingSpot = npcUtils.findNearestNpc(fish.getNpcId());
+                setNewEntry(event, npcMenuEntries.createNpcOption(fishingSpot.getIndex(), MenuAction.NPC_FIRST_OPTION));
             }
 
         }
@@ -299,9 +298,20 @@ public class viOneClickFishingPlugin  extends Plugin
         return false;
     }
 
-    private void handleDrop() {
+    private void setNewEntry(MenuOptionClicked event, MenuEntry menuEntry){
+        menuEntryInteractions.invokeMenuAction(menuEntry);
+//        menuEntryInteractions.insertMenuItem(menuEntry);
+//        event.getMenuEntry().setOption(menuEntry.getOption());
+//        event.getMenuEntry().setTarget(menuEntry.getTarget());
+//        event.getMenuEntry().setType(menuEntry.getType());
+//        event.getMenuEntry().setIdentifier(menuEntry.getIdentifier());
+//        event.getMenuEntry().setParam1(menuEntry.getParam1());
+//        event.getMenuEntry().setParam0(menuEntry.getParam0());
+    }
+
+    private void handleDrop(MenuOptionClicked event) {
         if (dropListIterator.hasNext()) {
-            menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(dropListIterator.next()));
+            setNewEntry(event, inventoryEntries.createDropItemEntry(dropListIterator.next()));
             return;
         }
         if (!dropListIterator.hasNext()) {
@@ -417,7 +427,10 @@ public class viOneClickFishingPlugin  extends Plugin
 
     @Subscribe
     private void onClientTick(ClientTick event) {
-        if (client.getLocalPlayer() == null || client.getGameState() != GameState.LOGGED_IN || client.isMenuOpen())
+        if (client.getLocalPlayer() == null
+                || client.getGameState() != GameState.LOGGED_IN
+                || client.isMenuOpen()
+                || client.getWidget(378,78) != null)//login button
             return;
 
         client.createMenuEntry(-1).setOption(oneClickText).setTarget("").setIdentifier(0).setType(MenuAction.CC_OP)

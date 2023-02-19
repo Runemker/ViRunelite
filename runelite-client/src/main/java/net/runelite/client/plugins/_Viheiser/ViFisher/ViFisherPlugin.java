@@ -11,20 +11,19 @@ import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins._Viheiser.ViFisher.enums.Fish;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.events.ProjectileSpawned;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.objects.DelayWrapper;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.ChatMessageHandler;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.DialogUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.InventoryUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.NpcUtils;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.PlayerUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.WalkInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.InventoryEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.NpcMenuEntries;
@@ -35,8 +34,6 @@ import net.runelite.client.util.HotkeyListener;
 
 import javax.inject.Inject;
 import java.util.*;
-
-import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.Sleeping.sleep;
 
 @PluginDependency(viUtilitiesPlugin.class)
 @PluginDescriptor(
@@ -60,7 +57,7 @@ public class ViFisherPlugin extends Plugin
     @Inject
     private PlayerUtils playerUtils;
     @Inject
-    private MenuEntryInteraction menuEntryInteraction;
+    private MenuEntryInteractions menuEntryInteractions;
     @Inject
     private WalkInteractions walkInteractions;
     @Inject
@@ -101,32 +98,17 @@ public class ViFisherPlugin extends Plugin
 
     HashMap<Integer, Integer> dropOrder;
     private boolean run;
-    private DelayWrapper delayWrapper;
     @Override
     protected void startUp() throws Exception
     {
         fish = config.fishType();
         keyManager.registerKeyListener(hotkeyListener);
-        delayWrapper = new DelayWrapper(config.weightedDistribution(), config.minDelay(), config.maxDelay(), config.deviation(), config.target());
     }
 
     @Override
     protected void shutDown() throws Exception
     {
         keyManager.unregisterKeyListener(hotkeyListener);
-    }
-
-    @Subscribe
-    private void onConfigChanged(ConfigChanged event){
-        updateDelayWrapper();
-    }
-
-    private void updateDelayWrapper(){
-        if(delayWrapper == null){
-            delayWrapper = new DelayWrapper(config.weightedDistribution(), config.minDelay(), config.maxDelay(), config.deviation(), config.target());
-        } else {
-            delayWrapper.update(config.weightedDistribution(), config.minDelay(), config.maxDelay(), config.deviation(), config.target());
-        }
     }
 
     private final HotkeyListener hotkeyListener = new HotkeyListener(() -> config.toggle())
@@ -191,9 +173,8 @@ public class ViFisherPlugin extends Plugin
     }
 
     private void interactWithFishingSpot() {
-        sleep(sleepDelay());
         NPC fishSpot = npcUtils.findNearestNpc(fish.getNpcId());
-        npcUtils.invokeMenuOption(fishSpot, fish.getNpcAction());
+        npcUtils.interactWithNpc(fishSpot, fish.getNpcAction(), useMouseClicks(), sleepDelay());
     }
 
     private boolean playerIsMoving() {
@@ -224,8 +205,7 @@ public class ViFisherPlugin extends Plugin
     }
 
     private void handleDrop() {
-        sleep(sleepDelay());
-        inventoryUtils.dropItems(fish.getItemId(), true, delayWrapper);
+        inventoryUtils.dropItems(fish.getItemId(), true, useMouseClicks(), sleepDelay());
 //        if (dropListIterator.hasNext()) {
 //            menuEntryInteraction.invokeMenuAction(inventoryEntries.createDropItemEntry(dropListIterator.next()));
 //            return;
@@ -233,6 +213,10 @@ public class ViFisherPlugin extends Plugin
 //        if (!dropListIterator.hasNext()) {
 //            dropping = false;
 //        }
+    }
+
+    private boolean useMouseClicks(){
+        return !config.useInvokes();
     }
 
     @Subscribe

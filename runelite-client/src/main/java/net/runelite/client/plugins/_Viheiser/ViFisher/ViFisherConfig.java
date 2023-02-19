@@ -54,13 +54,13 @@ public interface ViFisherConfig extends Config {
         return Keybind.NOT_SET;
     }
     @ConfigItem(
-            keyName = "run",
-            name = "run",
-            description = "Key to toggle",
+            keyName = "useInvokes",
+            name = "use Invokes",
+            description = "uses invokes instead",
             position = 5,
             section = generalSection
     )
-    default boolean run()
+    default boolean useInvokes()
     {
         return false;
     }

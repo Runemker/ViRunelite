@@ -1,7 +1,7 @@
 package net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.handlers;
 
-import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.wrappers.ReflectedMethodWrapper;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.MethodNameMapping;
+import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.wrappers.ReflectedMethodWrapper;
 
 import javax.inject.Inject;
 import java.lang.reflect.InvocationTargetException;

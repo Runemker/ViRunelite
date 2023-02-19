@@ -20,6 +20,10 @@ public class InventoryEntries {
         return createMenuEntry(identifier, itemAction, item.getIndex(), WidgetInfo.INVENTORY.getId(), false);
     }
 
+    public MenuEntry createInteractWithItem(Widget item, int identifier, MenuAction itemAction, boolean forceLeftClick){
+        return createMenuEntry(identifier, itemAction, item.getIndex(), WidgetInfo.INVENTORY.getId(), forceLeftClick);
+    }
+
     public MenuEntry createDropItemEntry(Widget itemToDrop) {
         if (itemToDrop == null)
             return null;

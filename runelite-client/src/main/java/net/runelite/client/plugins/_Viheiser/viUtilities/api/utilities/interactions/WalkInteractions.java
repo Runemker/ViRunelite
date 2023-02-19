@@ -3,8 +3,8 @@ package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interact
 import net.runelite.api.Client;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.ReflectionManager;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.FieldNameMapping;
+import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.ReflectionManager;
 
 import javax.inject.Inject;
 import java.util.Objects;

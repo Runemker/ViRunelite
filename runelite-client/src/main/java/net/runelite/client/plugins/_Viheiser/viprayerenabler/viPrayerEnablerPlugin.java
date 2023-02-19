@@ -9,7 +9,7 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 
@@ -32,7 +32,7 @@ public class viPrayerEnablerPlugin extends Plugin
 	@Inject
 	private ConfigManager configManager;
 	@Inject
-	private MenuEntryInteraction menuEntryInteraction;
+	private MenuEntryInteractions menuEntryInteractions;
 	@Inject
 	private WidgetMenuEntries widgetMenuEntries;
 	@Provides
@@ -61,7 +61,7 @@ public class viPrayerEnablerPlugin extends Plugin
 			return;
 
 		if(hasPrayerPoints() && config.enablePrayerFlick()) {
-			menuEntryInteraction.invokeMenuAction(widgetMenuEntries.createTogglePrayer());
+			menuEntryInteractions.invokeMenuAction(widgetMenuEntries.createTogglePrayer());
 		}
 	}
 

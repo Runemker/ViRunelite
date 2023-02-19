@@ -14,7 +14,6 @@ import java.util.List;
 public class ProjectileSpawnedHandler {
     @Inject
     private Client client;
-    @Inject
 
     private List<Projectile> previousProjectiles = new ArrayList<>();
     @Subscribe

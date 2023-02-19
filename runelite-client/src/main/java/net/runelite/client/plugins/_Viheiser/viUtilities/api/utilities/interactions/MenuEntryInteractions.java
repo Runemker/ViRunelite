@@ -2,21 +2,20 @@ package net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interact
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
+import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.objects.DelayWrapper;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.calculations.CalculatorUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.ReflectionManager;
+import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.FieldNameMapping;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.MethodNameMapping;
+import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.ReflectionManager;
 
 import javax.inject.Inject;
 
-import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.Sleeping.sleep;
-
 @Slf4j
-public class MenuEntryInteraction {
+public class MenuEntryInteractions {
     @Inject
     private ReflectionManager reflectionManager;
     @Inject
@@ -25,22 +24,18 @@ public class MenuEntryInteraction {
     private ClientThread clientThread;
     @Inject
     private CalculatorUtils calculatorUtils;
+    @Inject
+    private ActionQueue actionQueue;
 
-    public void invokeMenuAction(MenuEntry menuEntry, DelayWrapper delayWrapper){
-        sleep(
-                calculatorUtils.randomDelay(
-                        delayWrapper.isWeightedDistribution(),
-                        delayWrapper.getMinDelay(),
-                        delayWrapper.getMaxDelay(),
-                        delayWrapper.getDeviation(),
-                        delayWrapper.getTarget()
-                ));
-        insertMenuItem(menuEntry);
-        _invokeMenuAction(menuEntry);
+    public void invokeMenuAction(MenuEntry menuEntry, long delay){
+        actionQueue.delayTime(delay, () -> {
+            insertMenuItem(menuEntry);
+            _invokeMenuAction(menuEntry);
+        });
     }
 
     public void invokeMenuAction(MenuEntry menuEntry){
-        insertMenuItem(menuEntry);
+        addMenuEntry(menuEntry);
         _invokeMenuAction(menuEntry);
     }
 
@@ -75,6 +70,47 @@ public class MenuEntryInteraction {
         };
 
         reflectionManager.insertMenuEntry(MethodNameMapping.INSERT_MENU_ACTION, argList);
+    }
+
+    public void addMenuEntry(MenuEntry menuEntry){
+        int menuOptionsCount = 499;//reflectionManager.getIntField(FieldNameMapping.MENU_OPTIONS_COUNT, client);
+        Object menuArguments1AsObject = reflectionManager.getField(FieldNameMapping.MENU_ARGUMENTS_1);
+        Object menuArguments2AsObject = reflectionManager.getField(FieldNameMapping.MENU_ARGUMENTS_2);
+        Object menuOpcodesAsObject = reflectionManager.getField(FieldNameMapping.MENU_OPCODES);
+        Object menuIdentifiersAsObject = reflectionManager.getField(FieldNameMapping.MENU_IDENTIFIERS);
+        Object menuItemIdsAsObject = reflectionManager.getField(FieldNameMapping.MENU_ITEM_IDS);
+
+        if(menuArguments1AsObject instanceof int[]){
+            int[] menuArguments1 = (int[]) menuArguments1AsObject;
+            menuArguments1[menuOptionsCount] = menuEntry.getParam0();
+            reflectionManager.setFieldValue(FieldNameMapping.MENU_ARGUMENTS_1, menuArguments1);
+        }
+        if(menuArguments2AsObject instanceof int[]){
+            int[] menuArguments2 = (int[]) menuArguments2AsObject;
+            menuArguments2[menuOptionsCount] = menuEntry.getParam1();
+            reflectionManager.setFieldValue(FieldNameMapping.MENU_ARGUMENTS_2, menuArguments2);
+        }
+        if(menuOpcodesAsObject instanceof int[]){
+            int[] menuOpcodes = (int[]) menuOpcodesAsObject;
+            int opcode = menuOpcodes[499];
+            short mod = 0;
+            if (opcode >= 2000) {
+                mod = 2000;
+            }
+
+            menuOpcodes[menuOptionsCount] = menuEntry.getType().getId() + mod;
+            reflectionManager.setFieldValue(FieldNameMapping.MENU_OPCODES, menuOpcodes);
+        }
+        if(menuIdentifiersAsObject instanceof int[]){
+            int[] menuIdentifiers = (int[]) menuIdentifiersAsObject;
+            menuIdentifiers[menuOptionsCount] = menuEntry.getIdentifier();
+            reflectionManager.setFieldValue(FieldNameMapping.MENU_IDENTIFIERS, menuIdentifiers);
+        }
+        if(menuItemIdsAsObject instanceof int[]){
+            int[] menuItemIds = (int[]) menuItemIdsAsObject;
+            menuItemIds[menuOptionsCount] = menuEntry.getItemId();
+            reflectionManager.setFieldValue(FieldNameMapping.MENU_ITEM_IDS, menuItemIds);
+        }
     }
 
     private int getItemId(int identifier, int opcode, int param0, int param1, int currentItemId)

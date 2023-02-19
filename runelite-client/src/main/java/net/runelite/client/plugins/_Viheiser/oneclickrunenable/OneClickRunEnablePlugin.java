@@ -12,7 +12,7 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteraction;
+import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.MenuEntryInteractions;
 import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
 import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 
@@ -33,7 +33,7 @@ public class OneClickRunEnablePlugin extends Plugin
 	@Inject
 	public Client client;
 	@Inject
-	public MenuEntryInteraction menuEntryInteraction;
+	public MenuEntryInteractions menuEntryInteractions;
 	@Inject
 	public WidgetMenuEntries widgetMenuEntries;
 	@Inject
@@ -100,7 +100,7 @@ public class OneClickRunEnablePlugin extends Plugin
 	}
 
 	private void swapToRunMenuItem() {
-		menuEntryInteraction.insertMenuItem(
+		menuEntryInteractions.insertMenuItem(
 				createSwappedMenuEntry()
 		);
 	}
@@ -112,7 +112,7 @@ public class OneClickRunEnablePlugin extends Plugin
 	}
 
 	private void toggleRun(){
-		menuEntryInteraction.invokeMenuAction(widgetMenuEntries.createToggleRunEntry());
+		menuEntryInteractions.invokeMenuAction(widgetMenuEntries.createToggleRunEntry());
 	}
 
 	private MenuEntry createSwappedMenuEntry(){

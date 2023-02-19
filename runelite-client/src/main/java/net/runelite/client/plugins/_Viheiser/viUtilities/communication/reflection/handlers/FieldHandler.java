@@ -86,6 +86,33 @@ public class FieldHandler {
         }
     }
 
+    public Object getField(FieldNameMapping fieldNameMapping) throws ReflectionException {
+        ReflectedFieldWrapper fieldWrapper = reflectionHandler.getField(fieldNameMapping);
+        try {
+            Field reflectedField = fieldWrapper.getReflectedField();
+            Object reflectedClass = fieldWrapper.getReflectedClass();
+            reflectedField.setAccessible(true);
+            return reflectedField.get(reflectedClass);
+        } catch (IllegalAccessException | ClassCastException e) {
+            throw new ReflectionException(e, "Error getting object field");
+        } catch (Exception e) {
+            throw new ReflectionException(e, "Error getting object field");
+        }
+    }
+
+    public Object getField(FieldNameMapping fieldNameMapping, Object instance) throws ReflectionException {
+        ReflectedFieldWrapper fieldWrapper = reflectionHandler.getField(fieldNameMapping);
+        try {
+            Field reflectedField = fieldWrapper.getReflectedField();
+            reflectedField.setAccessible(true);
+            return reflectedField.get(instance);
+        } catch (IllegalAccessException | ClassCastException e) {
+            throw new ReflectionException(e, "Error getting object field");
+        } catch (Exception e) {
+            throw new ReflectionException(e, "Error getting object field");
+        }
+    }
+
     public String getStringField(FieldNameMapping fieldNameMapping, Object instance) throws ReflectionException {
         ReflectedFieldWrapper fieldWrapper = reflectionHandler.getField(fieldNameMapping);
         try {

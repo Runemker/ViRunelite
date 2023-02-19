@@ -2,10 +2,10 @@ package net.runelite.client.plugins._Viheiser.viUtilities.communication.reflecti
 
 import net.runelite.api.Client;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.ClassNameMapping;
-import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.wrappers.ReflectedMethodWrapper;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.FieldNameMapping;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.MethodNameMapping;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.wrappers.ReflectedFieldWrapper;
+import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.wrappers.ReflectedMethodWrapper;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;

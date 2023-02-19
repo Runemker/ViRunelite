@@ -1,9 +1,9 @@
 package net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection;
 
+import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.FieldNameMapping;
+import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.MethodNameMapping;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.handlers.FieldHandler;
 import net.runelite.client.plugins._Viheiser.viUtilities.communication.reflection.handlers.MethodHandler;
-import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.MethodNameMapping;
-import net.runelite.client.plugins._Viheiser.viUtilities.communication.mappings.FieldNameMapping;
 
 import javax.inject.Inject;
 import javax.management.ReflectionException;
@@ -41,6 +41,22 @@ public class ReflectionManager {
     public int getIntField(FieldNameMapping fieldName, Object instance) {
         try {
             return fieldHandler.getIntField(fieldName, instance);
+        } catch (ReflectionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Object getField(FieldNameMapping fieldName, Object instance) {
+        try {
+            return fieldHandler.getField(fieldName, instance);
+        } catch (ReflectionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Object getField(FieldNameMapping fieldName) {
+        try {
+            return fieldHandler.getField(fieldName);
         } catch (ReflectionException e) {
             throw new RuntimeException(e);
         }
