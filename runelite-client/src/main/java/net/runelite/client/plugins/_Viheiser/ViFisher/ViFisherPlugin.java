@@ -35,6 +35,8 @@ import net.runelite.client.util.HotkeyListener;
 import javax.inject.Inject;
 import java.util.*;
 
+import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue.sleep;
+
 @PluginDependency(viUtilitiesPlugin.class)
 @PluginDescriptor(
         name = "ViFisher",
@@ -173,6 +175,7 @@ public class ViFisherPlugin extends Plugin
     }
 
     private void interactWithFishingSpot() {
+        chatMessageHandler.sendGameMessage("going now!");
         NPC fishSpot = npcUtils.findNearestNpc(fish.getNpcId());
         npcUtils.interactWithNpc(fishSpot, fish.getNpcAction(), useMouseClicks(), sleepDelay());
     }

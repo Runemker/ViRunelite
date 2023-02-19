@@ -8,6 +8,8 @@ import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.plugins.PluginDependency;
+import net.runelite.client.plugins._Viheiser.viUtilities.viUtilitiesPlugin;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,6 +21,7 @@ import java.util.function.Supplier;
 
 @Slf4j
 @Singleton
+@PluginDependency(viUtilitiesPlugin.class)
 public class ActionQueue {
     @Inject
     private Client client;
@@ -26,6 +29,8 @@ public class ActionQueue {
     private ClientThread clientThread;
     @Inject
     private MouseInteractions mouseInteractions;
+    @Inject
+    private viUtilitiesPlugin plugin;
     public final List<DelayedAction> delayedActions = new ArrayList<>();
     private int clientTick = 0;
     private int gameTick = 0;
@@ -75,7 +80,6 @@ public class ActionQueue {
             } else {
                 delayedActions.add(new DelayedAction(condition, runnable));
             }
-            return true;
         });
     }
 
@@ -90,8 +94,12 @@ public class ActionQueue {
     }
 
     public void delayTime(long delay, Runnable runnable) {
-        long when = System.currentTimeMillis() + delay;
-        runLater(() -> System.currentTimeMillis() >= when, runnable);
+        plugin.getExecutorService().submit(() -> {
+            clientThread.invoke(() -> {
+                sleep(delay);
+                runnable.run();
+            });
+        });
     }
 
     @Value

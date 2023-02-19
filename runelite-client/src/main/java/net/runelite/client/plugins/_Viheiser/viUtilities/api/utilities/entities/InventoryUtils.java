@@ -17,6 +17,8 @@ import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.ActionQueue.sleep;
+
 @Singleton
 public class InventoryUtils {
     @Inject
@@ -208,12 +210,12 @@ public class InventoryUtils {
                     if (ids.contains(item.getItemId())) {
                         continue;
                     }
+                    sleep(delay);
                     MenuEntry entry = inventoryEntries.createDropItemEntry(item);
-                    if (mouseClick) {
-                        mouseInteractions.doActionMsTime(entry, item.getBounds(), delay);
-                    } else {
-                        actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
-                    }
+                    if (mouseClick)
+                        mouseInteractions.doActionMsTime(entry, item.getBounds());
+                    else
+                        menuEntryInteractions.invokeMenuAction(entry);
 
                 }
                 plugin.setIterating(false);
@@ -298,11 +300,12 @@ public class InventoryUtils {
                 plugin.setIterating(true);
 
                 for (Widget item : inventoryItems) {
+                    sleep(delay);
                     MenuEntry entry = inventoryEntries.createDropItemEntry(item);
                     if (mouseClick)
-                        mouseInteractions.doActionMsTime(entry, item.getBounds(), delay);
+                        mouseInteractions.doActionMsTime(entry, item.getBounds());
                     else
-                        actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
+                        menuEntryInteractions.invokeMenuAction(entry);
                     if (!dropAll) {
                         break;
                     }

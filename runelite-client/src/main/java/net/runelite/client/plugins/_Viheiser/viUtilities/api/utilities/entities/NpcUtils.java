@@ -46,9 +46,9 @@ public class NpcUtils {
         MenuEntry entry = npcMenuEntries.createNpcOption(npc.getIndex(), npcOption);
         if(mouseClick)
             mouseInteractions.doActionMsTime(entry, npc.getConvexHull().getBounds(), delay);
-        else
+        else {
             actionQueue.delayTime(delay, () -> menuEntryInteractions.invokeMenuAction(entry));
-
+        }
     }
 
     public void interactWithNpc(NPC npc, MenuAction npcOption, boolean mouseClick, long delay) {

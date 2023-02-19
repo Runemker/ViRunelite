@@ -226,12 +226,25 @@ public class MouseInteractions {
         doActionMsTime(entry, point, timeToDelay);
     }
 
+    public void doActionMsTime(MenuEntry entry, Rectangle rect) {
+        Point point = getClickPoint(rect);
+        doActionMsTime(entry, point);
+    }
+
     public void doActionMsTime(MenuEntry entry, Point point, long timeToDelay) {
         Runnable runnable = () -> {
             menuEntryInteractions.insertMenuItem(entry);
             handleMouseClick(point);
         };
         actionQueue.delayTime(timeToDelay, runnable);
+    }
+
+    public void doActionMsTime(MenuEntry entry, Point point) {
+        Runnable runnable = () -> {
+            menuEntryInteractions.insertMenuItem(entry);
+            handleMouseClick(point);
+        };
+        actionQueue.delayTime(0, runnable);
     }
 
     public void delayMouseClick(Rectangle rectangle, long delay) {
