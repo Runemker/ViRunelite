@@ -9,9 +9,9 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.ChatMessageHandler;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.entities.PlayerUtils;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.WalkInteractions;
+import net.runelite.client.plugins._Viheiser.ViUtilities.api.utilities.ChatMessageHandler;
+import net.runelite.client.plugins._Viheiser.ViUtilities.api.utilities.entities.PlayerUtils;
+import net.runelite.client.plugins._Viheiser.ViUtilities.api.utilities.interactions.WalkInteractions;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

@@ -12,9 +12,9 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.interactions.InvokeInteractions;
-import net.runelite.client.plugins._Viheiser.viUtilities.api.utilities.menuentries.WidgetMenuEntries;
-import net.runelite.client.plugins._Viheiser.viUtilities.ViUtilitiesPlugin;
+import net.runelite.client.plugins._Viheiser.ViUtilities.api.utilities.interactions.InvokeInteractions;
+import net.runelite.client.plugins._Viheiser.ViUtilities.api.utilities.menuentries.WidgetMenuEntries;
+import net.runelite.client.plugins._Viheiser.ViUtilities.ViUtilitiesPlugin;
 
 import javax.inject.Inject;
 
